@@ -169,6 +169,8 @@ function drawItems(x, y, inv, i, d, r) {
             rect(canvas.width/2 - (inv.length * 25) + i * 85 - 29, canvas.height - 50, 17, 5, 0.6);
             rect(canvas.width/2 - (inv.length * 25) + i * 85 - 29, canvas.height - 40, 17, 5, 0.6);
             rect(canvas.width/2 - (inv.length * 25) + i * 85 - 29, canvas.height - 30, 17, 5, 0.6);
+        } else if(inv[i] === "block") {
+            
         }
     } else {
         if(inv[i] === "axe") {
@@ -247,36 +249,43 @@ function tree() {
     this.s = round(random(50, 100));
 };
 tree.prototype.draw = function() {
-    if(player.x >= this.x - canvas.width/2 - this.s/2 - 25 && player.x <= this.x + canvas.width/2 + this.s + 25 && player.y >= this.y - canvas.height/2 - this.s/2 && player.y <= this.y + canvas.height + this.s/2 + 25) {
-        fill(0, 150 + cos(this.x + this.y) * 9, 0);
-        ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s, this.s, 0);
-        var x = this.x - player.x + canvas.width/2;
-        var y = this.y - player.y + canvas.width/2;
-        var s = this.s * 0.95;
-        for(var i = 0; i < 10; i+=1) {
-            rect(x, y, s, s, this.x + i);
-        }
-        fill(0, 140 + cos(this.x + this.y) * 9, 0)
-        ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s * 0.66, this.s * 0.66, 0);
-        x = this.x - player.x + canvas.width/2;
-        y = this.y - player.y + canvas.width/2;
-        s = this.s * 0.61;
-        for(var i = 0; i < 10; i+=1) {
-            rect(x, y, s, s, this.x + i);
-        }
-        fill(0, 130 + cos(this.x + this.y) * 9, 0)
-        ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s * 0.33, this.s * 0.33, 0);
-        x = this.x - player.x + canvas.width/2;
-        y = this.y - player.y + canvas.width/2;
-        s = this.s * 0.36;
-        for(var i = 0; i < 10; i+=1) {
-            rect(x, y, s, s, this.x + i);
-        }
+    fill(0, 150 + cos(this.x + this.y) * 9, 0);
+    ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s, this.s, 0);
+    var x = this.x - player.x + canvas.width/2;
+    var y = this.y - player.y + canvas.width/2;
+    var s = this.s * 0.95;
+    for(var i = 0; i < 10; i+=1) {
+        rect(x, y, s, s, this.x + i);
+    }
+    fill(0, 140 + cos(this.x + this.y) * 9, 0)
+    ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s * 0.66, this.s * 0.66, 0);
+    x = this.x - player.x + canvas.width/2;
+    y = this.y - player.y + canvas.width/2;
+    s = this.s * 0.61;
+    for(var i = 0; i < 10; i+=1) {
+        rect(x, y, s, s, this.x + i);
+    }
+    fill(0, 130 + cos(this.x + this.y) * 9, 0)
+    ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s * 0.33, this.s * 0.33, 0);
+    x = this.x - player.x + canvas.width/2;
+    y = this.y - player.y + canvas.width/2;
+    s = this.s * 0.36;
+    for(var i = 0; i < 10; i+=1) {
+        rect(x, y, s, s, this.x + i);
     }
 };
-tree.prototype.collide = function() {
-    if(dist(this.x, this.y, t.x, t.y) < this.s/2 + t.s) {
-        
+tree.prototype.collide = function(t) {
+    if(dist(this.x, (this.y + this.s), t.x, t.y) < this.s) {
+        if(t.x < this.x) {
+            t.x-=1;
+        } else {
+            t.x+=1;
+        }
+        if(t.y < this.y) {
+            t.y-=1;
+        } else {
+            t.y+=1;
+        }
     }
 };
 var player = new Player();
@@ -284,6 +293,7 @@ for(var i = 0; i < 100; i+=1) {
     trees.push(new tree());
 }
 function draw() {
+    canvas.style.backgroundColor = "lime";
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     switch(scene) {
         case "game":
@@ -292,11 +302,14 @@ function draw() {
             player.update();
             player.draw();
             for(var i = 0; i < trees.length; i+=1) {
-                trees[i].draw();
+                if(player.x >= trees[i].x - canvas.width/2 - trees[i].s/2 - 25 && player.x <= trees[i].x + canvas.width/2 + trees[i].s + 25 && player.y >= trees[i].y - canvas.height/2 - trees[i].s/2 && player.y <= trees[i].y + canvas.height + trees[i].s/2 + 25) {
+                    trees[i].draw();
+                    trees[i].collide(player)
+                }
             }
             player.ui();
             fill(255, 255, 255);
-            text("Position: " + player.x + ", " + player.y, 5, 15, 12);
+            text("Position: " + round(player.x) + ", " + round(player.y), 5, 15, 12);
         break;
     }
 };
