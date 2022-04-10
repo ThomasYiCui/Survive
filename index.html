@@ -246,7 +246,7 @@ function tree() {
     this.s = round(random(50, 100));
 };
 tree.prototype.draw = function() {
-    if(player.x >= this.x - canvas.width/2 - this.s/2 - 25 && player.x <= this.x + canvas.width/2 + this.s + 25 && player.y >= this.y - canvas.height/2 - this.s/2 - 25 && player.y <= this.y + canvas.height/2 + this.s * 2 + 25) {
+    if(player.x >= this.x - canvas.width/2 - this.s/2 - 25 && player.x <= this.x + canvas.width/2 + this.s + 25 && player.y >= this.y - canvas.height/2 - this.s * 2 - 25 && player.y <= this.y + canvas.height/2 + this.s * 2 + 25) {
         fill(0, 150 + cos(this.x + this.y) * 9, 0);
         ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s, this.s, 0);
         var x = this.x - player.x + canvas.width/2;
