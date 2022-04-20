@@ -16,9 +16,30 @@ Change Log:
         -added so when you build it uses 10 wood
         -pressing space uses the tool
         -added bush, you can hit it to get food.
+        -added food display
+        -added a grid pattern
     April 12 2022
         -fized collision (thanks to Dominic R.)
-        -
+        -added exp and agging (you get exp for getting matierials)
+        -added gold and stoen display
+        -remade stone graphics from a circle to a heptagon
+        -remade bush graphics added berries and changed shape
+        -added gold ore you can hit it to get gold
+    April 13 2022
+        -added wolves
+        -wolves now move even if you can't see them
+        -wolves collide with trees (I NEED SOMEONE TO FIX THE COLLISION)
+        -wolves collide with stone (I NEED SOMEONE TO FIX THE COLLISION)
+        -wolves collide with gold (I NEED SOMEONE TO FIX THE COLLISION)
+    April 14 2022
+        -You can now do damage to wolves
+        I will be competing so progross will be slow or will stop entiraly.
+    April 20 2022
+        I got back and I will get to work
+        -Wolves follow you and attack you
+        -You get food for killing wolves
+        -Fixed thw wolves hit boxes
+        -Started work on menu
 -->
 <html>
     <head>
@@ -151,11 +172,14 @@ Change Log:
         }
     </script>
     <script>
-var scene = "game";
+textAlign("center");
+var scene = "menu";
 var player = "";
 var keyPress = 10;
 var trees = [];
 var rocks = [];
+var wolves = [];
+var golds = [];
 var bushes = [];
 var objects = [];
 function drawItems(x, y, inv, i, d, r) {
@@ -185,6 +209,15 @@ function drawItems(x, y, inv, i, d, r) {
             rect(x - 45, y - 15, 30, 30, 0);
         }
 };
+function heptagon(x, y, r) {
+    var a = 2 * Math.PI / 7;
+    ctx.beginPath();
+    for (var i = 0; i < 7; i++) {
+        ctx.lineTo(x + r * Math.cos(a * i), y + r * Math.sin(a * i));
+    }
+    ctx.closePath();
+    ctx.fill();
+};
 
 function Player() {
     this.x = round(random(-4000, 4000));
@@ -193,21 +226,26 @@ function Player() {
     this.inv = ["axe", "apple", "barracks", "woodBlock"];
     this.holding = 0;
     this.s = 10;
-    this.stone = 0;
-    this.wood = 0;
+    this.stone = 100;
+    this.wood = 100;
     this.food = 100;
-    this.gold = 0;
+    this.gold = 100;
     this.offset = 0;
     this.offsetA = 0;
     this.weponSize = 5;
     this.weponLength = 15;
-    this.hp = 10;
+    this.weponDamage = 25;
+    this.hp = 100;
     this.maxHp = 100;
     this.exp = 0;
-    this.lvl = 0;
+    this.lvl = 1;
 };
 Player.prototype.update = function() {
     this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
+    if(this.exp >= ((this.lvl + (this.lvl + 1)) * 32.5)) {
+        this.lvl+=1;
+        this.exp = 0;
+    }
     if(keys[87] || keys[38]) {
         this.y-=1;
     }
@@ -248,25 +286,36 @@ Player.prototype.draw = function() {
 Player.prototype.ui = function() {
     for(var i = 0; i < this.inv.length; i+=1) {
         fill(0, 0, 0, 0.1);
-        rect(canvas.width/2 - (this.inv.length * 25) + i * 60, canvas.height - 60, 50, 50);
+        rect(canvas.width/2 - (this.inv.length * 25) + i * 60 - 10, canvas.height - 60, 50, 50);
         if(keys[49 + i]) {
             this.holding = i;
         }
-        drawItems(canvas.width/2 - (this.inv.length * 25) + i * 60 + 55, canvas.height - 35, this.inv, i);
+        drawItems(canvas.width/2 - (this.inv.length * 25) + i * 60 + 45, canvas.height - 35, this.inv, i);
     }
     fill(0, 0, 0, 0.1)
     rect(canvas.width - 110, canvas.height - 40, 100, 30);
     rect(canvas.width - 110, canvas.height - 80, 100, 30);
     rect(canvas.width - 110, canvas.height - 120, 100, 30);
     rect(canvas.width - 110, canvas.height - 160, 100, 30);
+    // text for matierials
     fill(255, 255, 255);
-    text(this.food, canvas.width - 60, canvas.height - 20, 20);
-    text(this.stone, canvas.width - 60, canvas.height - 60, 20);
-    text(this.wood, canvas.width - 60, canvas.height - 100, 20);
-    text(this.gold, canvas.width - 60, canvas.height - 140, 20);
+    text(this.wood, canvas.width - 50, canvas.height - 100, 20);
+    text(this.gold, canvas.width - 50, canvas.height - 140, 20);
+    text(this.stone, canvas.width - 50, canvas.height - 60, 20);
+    text(this.food, canvas.width - 50, canvas.height - 20, 20);
+    // display for matierials
     drawItems(canvas.width - 70, canvas.height - 22.5, this.inv, 1);
     fill(100, 100, 100);
-    rect(canvas.width/2 - 150, canvas.height - 80, 300, 15)
+    heptagon(canvas.width - 95, canvas.height - 65, 12);
+    fill(255, 200, 0);
+    heptagon(canvas.width - 95, canvas.height - 145, 12);
+    // age
+    fill(100, 100, 100);
+    rect(canvas.width/2 - 150, canvas.height - 80, 300, 15);
+    fill(255, 255, 255);
+    rect(canvas.width/2 - 149, canvas.height - 79, (298/((this.lvl + (this.lvl + 1)) * 32.5)) * this.exp, 13)
+    fill(255, 255, 255);
+    text("Age: " + this.lvl, canvas.width/2, canvas.height - 85);
 };
 Player.prototype.clicks = function() {
     if(clicked || keys[32] && keyPress <= 0) {
@@ -285,7 +334,7 @@ Player.prototype.clicks = function() {
                     }
                 break;
             case "apple":
-                if(this.hp < 100) {
+                if(this.hp < 100 && this.food >= 10) {
                     this.food-=10;
                     this.hp+=20;
                     this.hp = constrain(this.hp, 1, 100);
@@ -317,40 +366,43 @@ function tree() {
 };
 tree.prototype.draw = function() {
     fill(0, 150 + cos(this.x + this.y) * 9, 0);
-    ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s, this.s, 0);
-    var x = this.x - player.x + canvas.width/2;
-    var y = this.y - player.y + canvas.width/2;
+    ellipse(this.x - player.x, this.y - player.y, this.s, this.s, 0);
+    var x = this.x - player.x;
+    var y = this.y - player.y;
     var s = this.s * 0.95;
     for(var i = 0; i < 10; i+=1) {
         rect(x, y, s, s, this.x + i);
     }
     fill(0, 140 + cos(this.x + this.y) * 9, 0)
-    ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s * 0.66, this.s * 0.66, 0);
-    x = this.x - player.x + canvas.width/2;
-    y = this.y - player.y + canvas.width/2;
+    ellipse(this.x - player.x, this.y - player.y, this.s * 0.66, this.s * 0.66, 0);
     s = this.s * 0.61;
     for(var i = 0; i < 10; i+=1) {
         rect(x, y, s, s, this.x + i);
     }
     fill(0, 130 + cos(this.x + this.y) * 9, 0)
-    ellipse(this.x - player.x + canvas.width/2, this.y - player.y + canvas.width/2, this.s * 0.33, this.s * 0.33, 0);
-    x = this.x - player.x + canvas.width/2;
-    y = this.y - player.y + canvas.width/2;
+    ellipse(this.x - player.x, this.y - player.y, this.s * 0.33, this.s * 0.33, 0);
     s = this.s * 0.36;
     for(var i = 0; i < 10; i+=1) {
         rect(x, y, s, s, this.x + i);
     }
 };
-tree.prototype.collide = function(t) {
-    if(clicked || keys[32] && keyPress <= 10) {
-        if(dist(this.x, (this.y + this.s), t.x + cos(t.r - 180) * t.weponLength, t.y + sin(t.r - 180) * t.weponLength) < this.s + t.weponSize + 10 && t.offset > 0) {
-            t.wood+=1;
-        }
+tree.prototype.collide = function(t, x, y) {
+    if(x === undefined) {
+        x = 0;
     }
-    while(dist(this.x, (this.y + this.s), t.x, t.y) < this.s) {
-        var r = atan2((this.y + this.s) - t.y, this.x - t.x);
+    if(y === undefined) {
+        y = 0;
+    }
+    while(dist(this.x - canvas.width/2 + x, this.y - canvas.height/2 + y, t.x, t.y) < this.s + 10) {
+        var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
         t.x-=cos(r);
         t.y-=sin(r);
+    }
+    if(clicked || keys[32] && keyPress <= 10 && x === 0) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 180) * t.weponLength, t.y + sin(t.r - 180) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
+            t.wood+=1;
+            t.exp+=1;
+        }
     }
 };
 
@@ -361,10 +413,16 @@ function rock() {
 };
 rock.prototype.draw = function() {
     fill(100, 100, 100);
-    ellipse(this.x - player.x, this.y - player.y, this.s, this.s, 0);
+    heptagon(this.x - player.x, this.y - player.y, this.s + 5)
 };
-rock.prototype.collide = function(t) {
-    while(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < this.s + 10) {
+rock.prototype.collide = function(t, x, y) {
+    if(x === undefined) {
+        x = 0;
+    }
+    if(y === undefined) {
+        y = 0;
+    }
+    while(dist(this.x - canvas.width/2 + x, this.y - canvas.height/2 + y, t.x, t.y) < this.s + 10) {
         var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
         t.x-=cos(r);
         t.y-=sin(r);
@@ -372,9 +430,40 @@ rock.prototype.collide = function(t) {
     if(clicked || keys[32] && keyPress <= 10) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 180) * t.weponLength, t.y + sin(t.r - 180) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
             t.stone+=1;
+            t.exp+=1;
         }
     }
 };
+
+function gold() {
+    this.x = round(random(-4000, 4000));
+    this.y = round(random(-4000, 4000));
+    this.s = round(random(25, 50));
+};
+gold.prototype.draw = function() {
+    fill(255, 200, 0);
+    heptagon(this.x - player.x, this.y - player.y, this.s + 5)
+};
+gold.prototype.collide = function(t, x, y) {
+    if(x === undefined) {
+        x = 0;
+    }
+    if(y === undefined) {
+        y = 0;
+    }
+    while(dist(this.x - canvas.width/2 + x, this.y - canvas.height/2 + y, t.x, t.y) < this.s + 10) {
+        var r = atan2((this.y - canvas.height/2 + y) - t.y, (this.x - canvas.width/2 + x) - t.x);
+        t.x-=cos(r);
+        t.y-=sin(r);
+    }
+    if(clicked || keys[32] && keyPress <= 10) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 180) * t.weponLength, t.y + sin(t.r - 180) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
+            t.gold+=1;
+            t.exp+=1;
+        }
+    }
+};
+
 function bush() {
     this.x = round(random(-4000, 4000));
     this.y = round(random(-4000, 4000));
@@ -382,17 +471,79 @@ function bush() {
 bush.prototype.draw = function() {
     fill(0, 150, 0);
     ellipse(this.x - player.x, this.y - player.y, 20, 20, 0);
-    ellipse(this.x - player.x - 20, this.y - player.y, 15, 15, 0);
-    ellipse(this.x - player.x + 20, this.y - player.y, 15, 15, 0);
+    ellipse(this.x - player.x + cos(this.x) * 10, this.y - player.y + sin(this.x) * 10, 15, 15, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10, this.y - player.y - sin(this.y) * 10, 15, 15, 0);
+    ellipse(this.x - player.x + cos(this.x) * 10, this.y - player.y + cos(this.x) * 10, 15, 15, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10, this.y - player.y - sin(this.y) * 10, 15, 15, 0);
+    fill(255, 0, 0)
+    ellipse(this.x - player.x + cos(this.x) * 10 - 5, this.y - player.y + sin(this.x) * 10 + 5, 2, 2, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10 + 5, this.y - player.y - sin(this.y) * 10 - 5, 2, 2, 0);
+    ellipse(this.x - player.x + cos(this.x) * 10 - 5, this.y - player.y + cos(this.x) * 10 - 5, 2, 2, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10 + 5, this.y - player.y - sin(this.y) * 10 + 5, 2, 2, 0);;
 };
-bush.prototype.collide = function(t) {
-    if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 30) {
-        t.x+=constrain((t.x - this.x), -1, 1);
-        t.y+=constrain((t.y - this.y), -1, 1);
+bush.prototype.collide = function(t, x, y) {
+    if(x === undefined) {
+        x = 0;
+    }
+    if(y === undefined) {
+        y = 0;
+    }
+    while(dist(this.x - canvas.width/2 + x, this.y - canvas.height/2 + y, t.x, t.y) < 30) {
+        var r = atan2((this.y - canvas.height/2 + y) - t.y, (this.x - canvas.width/2 + x) - t.x);
+        t.x-=cos(r);
+        t.y-=sin(r);
     }
     if(clicked || keys[32] && keyPress <= 10) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 180) * t.weponLength, t.y + sin(t.r - 180) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
             t.food+=1;
+            t.exp+=1;
+        }
+    }
+};
+function wolf(x, y) {
+    this.x = x;
+    this.y = y;
+    this.r = 0;
+    this.ar = -0.05;
+    this.t = 0;
+    this.hp = 100;
+};
+wolf.prototype.draw = function() {
+    fill(100, 100, 100)
+    ellipse(this.x - player.x, this.y - player.y, 20, 15, this.r);
+    fill(100, 100, 100)
+    ellipse(this.x - player.x + cos(this.r) * 20, this.y - player.y + sin(this.r) * 20, 12.5, 12.5, this.r);
+};
+wolf.prototype.update = function() {
+    this.t-=1;
+    this.x+=cos(this.r);
+    this.y+=sin(this.r);
+    this.r -= random(0, this.ar);
+    if(this.t <= 0) {
+        if(random(0, 1) < 0.5) {
+            this.ar = -0.05;
+        } else {
+            this.ar = 0.05;
+        }
+        this.t = round(random(50, 150))
+    }
+    this.x = constrain(this.x, -4000 - canvas.width/2, 4000 + canvas.width/2);
+    this.y = constrain(this.y, -4000 - canvas.height/2, 4000 + canvas.height/2);
+};
+wolf.prototype.collide = function(t) {
+    if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < canvas.width/2 + canvas.height/2) {
+        this.r = atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x);
+        this.ar = 0;
+        while(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 40) {
+            var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
+            t.x-=cos(r);
+            t.y-=sin(r);
+            t.hp-=1;
+        }
+        if(clicked || keys[32] && keyPress <= 10) {
+            if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 180) * t.weponLength, t.y + sin(t.r - 180) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
+                this.hp-=t.weponDamage;
+            }
         }
     }
 };
@@ -417,9 +568,33 @@ for(var i = 0; i < 100; i+=1) {
 for(var i = 0; i < 150; i+=1) {
     bushes.push(new bush());
 }
+for(var i = 0; i < 50; i+=1) {
+    golds.push(new gold());
+}
+for(var i = 0; i < 100; i+=1) {
+    wolves.push(new wolf(round(random(-4000, 4000)), round(random(-4000, 4000))));
+    //wolves.push(new wolf(player.x, player.y));
+}
+function button(x, y, width, height, does, txt) {
+    rect(x, y, width, height, 0);
+    fill(0, 0, 0);
+    text(txt[0], x + width/2, y + height/2 + txt[1]/2 - 4, txt[1]);
+    if(mouseX > x && mouseY > y && mouseX < x + width && mouseY < y + height && clicked) {
+        does();
+    }
+};
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     switch(scene) {
+        case "menu":
+            fill(0, 200, 0);
+            rect(0, 0, canvas.width, canvas.height, 0);
+            grid();
+            button(canvas.width/2 -  canvas.width/10, canvas.height * 0.60, canvas.width/5, 30, function() {
+                scene = "game";
+            }, ["Play", 20]);
+        break;
         case "game":
             fill(0, 200, 0);
             rect(0, 0, canvas.width, canvas.height, 0);
@@ -428,15 +603,30 @@ function draw() {
             player.draw();
             player.clicks();
             for(var i = 0; i < trees.length; i+=1) {
-                if(player.x >= trees[i].x - canvas.width/2 - trees[i].s/2 - 25 && player.x <= trees[i].x + canvas.width/2 + trees[i].s + 25 && player.y >= trees[i].y - canvas.height/2 - trees[i].s/2 && player.y <= trees[i].y + canvas.height + trees[i].s/2 + 25) {
+                if(player.x >= trees[i].x - canvas.width - trees[i].s - 25 && player.x <= trees[i].x + canvas.width + trees[i].s + 25 && player.y >= trees[i].y - canvas.height - trees[i].s && player.y <= trees[i].y + canvas.height + trees[i].s + 25) {
                     trees[i].draw();
-                    trees[i].collide(player)
+                    trees[i].collide(player);
+                    for(var j = 0; j < wolves.length; j+=1) {
+                        trees[i].collide(wolves[j], canvas.width/2, canvas.height/2);
+                    }
                 }
             }
             for(var i = 0; i < rocks.length; i+=1) {
                 if(player.x >= rocks[i].x - canvas.width - rocks[i].s - 25 && player.x <= rocks[i].x + canvas.width + rocks[i].s + 25 && player.y >= rocks[i].y - canvas.height - rocks[i].s && player.y <= rocks[i].y + canvas.height + rocks[i].s + 25) {
                     rocks[i].draw();
                     rocks[i].collide(player)
+                    for(var j = 0; j < wolves.length; j+=1) {
+                        rocks[i].collide(wolves[j], canvas.width/2, canvas.height/2);
+                    }
+                }
+            }
+            for(var i = 0; i < golds.length; i+=1) {
+                if(player.x >= golds[i].x - canvas.width - golds[i].s - 25 && player.x <= golds[i].x + canvas.width + golds[i].s + 25 && player.y >= golds[i].y - canvas.height - golds[i].s && player.y <= golds[i].y + canvas.height + golds[i].s + 25) {
+                    golds[i].draw();
+                    golds[i].collide(player)
+                    for(var j = 0; j < wolves.length; j+=1) {
+                        golds[i].collide(wolves[j], canvas.width/2, canvas.height/2);
+                    }
                 }
             }
             for(var i = 0; i < bushes.length; i+=1) {
@@ -450,13 +640,27 @@ function draw() {
                     objects[i].draw();
                 }
             }
+            for(var i = 0; i < wolves.length; i+=1) {
+                if(player.x >= wolves[i].x - canvas.width - 37.5 && player.x <= wolves[i].x + 10 && player.y >= wolves[i].y - canvas.height - 12.5 && player.y <= wolves[i].y + 10) {
+                    wolves[i].draw();
+                    wolves[i].collide(player);
+                    if(wolves[i].hp <= 0) {
+                        wolves.splice(i, 1);
+                        player.food+=200;
+                    }
+                }
+                wolves[i].update();
+            }
             player.ui();
             fill(255, 255, 255);
-            text("Position: " + round(player.x) + ", " + round(player.y), 5, 15, 12);
+            text("Position: " + round(player.x) + ", " + round(player.y), 65, 15, 12);
         break;
     }
     clicked = false;
     keyPress-=1;
+    if(wolves.length < 100) {
+        wolves.push(new wolf(round(random(-4000, 4000)), round(random(-4000, 4000))));
+    }
 };
 draw();
 start();
