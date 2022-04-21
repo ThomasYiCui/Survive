@@ -591,9 +591,10 @@ function draw() {
             fill(0, 200, 0);
             rect(0, 0, canvas.width, canvas.height, 0);
             grid();
-            button(canvas.width/2 -  canvas.width/10, canvas.height * 0.60, canvas.width/5, 30, function() {
+            button(canvas.width/2 -  canvas.width/10, canvas.height * 0.60, canvas.width/5, 40, function() {
                 scene = "game";
             }, ["Play", 20]);
+            text("Game Title", canvas.width/2, canvas.height/2 - 50, 60)
         break;
         case "game":
             fill(0, 200, 0);
