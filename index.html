@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <!--
 Link: https://thomasyicui.github.io/Survive/
+This was made by How-Code? (Also known as Code247)
 CONTROLS: 
     -Number pad to switch items
     -WASD or Arrow keys to move
@@ -40,6 +41,10 @@ Change Log:
         -You get food for killing wolves
         -Fixed thw wolves hit boxes
         -Started work on menu
+    April 21 2022
+        -Wolves have a name
+        -Wolves have a helath bar
+        -Menu got updated
 -->
 <html>
     <head>
@@ -232,8 +237,8 @@ function Player() {
     this.gold = 100;
     this.offset = 0;
     this.offsetA = 0;
-    this.weponSize = 5;
-    this.weponLength = 15;
+    this.weponSize = 10;
+    this.weponLength = 30;
     this.weponDamage = 25;
     this.hp = 100;
     this.maxHp = 100;
@@ -534,6 +539,12 @@ wolf.prototype.draw = function() {
     ellipse(this.x - player.x, this.y - player.y, 20, 15, this.r);
     fill(100, 100, 100)
     ellipse(this.x - player.x + cos(this.r) * 20, this.y - player.y + sin(this.r) * 20, 12.5, 12.5, this.r);
+    fill(100, 100, 100);
+    rect(this.x - player.x - 12.5, this.y - player.y + 20, 25, 5);
+    fill(255, 0, 0);
+    rect(this.x - player.x - 12.5, this.y - player.y + 20, this.hp/4, 5);
+    fill(255, 255, 255);
+    text("Wolf", this.x - player.x, this.y - player.y - 20, 20);
 };
 wolf.prototype.update = function() {
     this.t-=1;
@@ -687,6 +698,7 @@ function draw() {
                     if(wolves[i].hp <= 0) {
                         wolves.splice(i, 1);
                         player.food+=200;
+                        player.exp+=100;
                     }
                 }
                 wolves[i].update();
