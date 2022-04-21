@@ -343,6 +343,27 @@ Player.prototype.clicks = function() {
         }
     }
 };
+Player.prototype.reset = function() {
+    this.x = round(random(-4000, 4000));
+    this.y = round(random(-4000, 4000));
+    this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
+    this.inv = ["axe", "apple", "barracks", "woodBlock"];
+    this.holding = 0;
+    this.s = 10;
+    this.stone = 100;
+    this.wood = 100;
+    this.food = 100;
+    this.gold = 100;
+    this.offset = 0;
+    this.offsetA = 0;
+    this.weponSize = 5;
+    this.weponLength = 15;
+    this.weponDamage = 25;
+    this.hp = 100;
+    this.maxHp = 100;
+    this.exp = 0;
+    this.lvl = 1;
+};
 
 function object(x, y, r, type) {
     this.x = x;
@@ -554,7 +575,7 @@ function grid() {
         rect(0, y - player.y % 50, canvas.width, 2, 0);
     }
     for(var x = -25; x < canvas.width + 25; x+=25) {
-        rect(x - player.x % 50, 0, 2, canvas.width, 0);
+        rect(x - player.x % 50, 0, 2, canvas.height, 0);
     }
 }
 
@@ -577,24 +598,43 @@ for(var i = 0; i < 100; i+=1) {
 }
 function button(x, y, width, height, does, txt) {
     rect(x, y, width, height, 0);
-    fill(0, 0, 0);
+    fill(255, 255, 255);
     text(txt[0], x + width/2, y + height/2 + txt[1]/2 - 4, txt[1]);
     if(mouseX > x && mouseY > y && mouseX < x + width && mouseY < y + height && clicked) {
         does();
     }
 };
+function menu() {
+    textAlign("center")
+    fill(0, 200, 0);
+    rect(0, 0, canvas.width, canvas.height, 0);
+    grid();
+    button(canvas.width/2 -  canvas.width/10, canvas.height * 0.60, canvas.width/5, 40, function() {
+        scene = "game";
+    }, ["Play", canvas.width/30]);
+    fill(0, 0, 0);
+    text("Game Title", canvas.width/2 + 20 - canvas.width/200, canvas.height/2 - 47, canvas.width/10);
+    fill(255, 255, 255);
+    text("Game Title", canvas.width/2 + 20, canvas.height/2 - 50, canvas.width/10);
+    rect(10 - canvas.width/600, canvas.height/35 + canvas.height/10, canvas.width/3.9, canvas.width/4.01);
+    fill(0, 0, 0);
+    text("How To Play", canvas.width/8 + 10, canvas.height/13 + canvas.height/10, canvas.width/26);
+    text("Movement: WASD", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + canvas.height/10, canvas.width/38)
+    text("or arrow keys", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + canvas.width/38 + canvas.height/10, canvas.width/38);
+       
+    text("Switch Item: Number", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 2.5 + canvas.height/10, canvas.width/38);
+    text("Pad", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 3.5 + canvas.height/10, canvas.width/38);
+    
+    text("Use Item: Click or", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 5 + canvas.height/10, canvas.width/38);
+    text("Space", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 6 + canvas.height/10, canvas.width/38);
+};
+canvas.width = round(random(0, 1000));
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     switch(scene) {
         case "menu":
-            fill(0, 200, 0);
-            rect(0, 0, canvas.width, canvas.height, 0);
-            grid();
-            button(canvas.width/2 -  canvas.width/10, canvas.height * 0.60, canvas.width/5, 40, function() {
-                scene = "game";
-            }, ["Play", 20]);
-            text("Game Title", canvas.width/2, canvas.height/2 - 50, 60)
+            menu();
         break;
         case "game":
             fill(0, 200, 0);
@@ -655,6 +695,10 @@ function draw() {
             player.ui();
             fill(255, 255, 255);
             text("Position: " + round(player.x) + ", " + round(player.y), 65, 15, 12);
+            if(player.hp <= 0) {
+                player.reset();
+                scene = "menu"
+            }
         break;
     }
     clicked = false;
