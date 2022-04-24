@@ -787,7 +787,7 @@ gold.prototype.collide = function(t, x, y) {
 // Bush functions
 function bush() {
     this.x = round(random(-4000, 4000));
-    this.y = round(random(-4000, 4000));
+    this.y = round(random(-3000, 3000));
 };
 bush.prototype.draw = function() {
     fill(0, 150, 0);
@@ -989,10 +989,17 @@ Map.prototype.draw = function() {
     // draw the ground
     fill(0, 200, 0);
     rect(0, 0, canvas.width, canvas.height, 0);
-    grid();
+    // snow boime
+    fill(240, 240, 240);
+    rect(-4000 - player.x, -4000 - player.y, 8000, 1000 + canvas.height/2);
+    // desert boime
+    fill(235, 213, 52);
+    rect(-4000 - player.x, 3000 - player.y + canvas.height/2, 8000, 1000 + canvas.height/2);
     // draw the beach
     fill(247, 225, 59);
     rect(-210 - player.x + canvas.width/2, -4000 - player.y, 420, 8000 + canvas.height * 2)
+    // grid pattern
+    grid();
     // draw the river
     fill(52, 146, 235);
     rect(-200 - player.x + canvas.width/2 + cos(this.frameRate/20), -4000 - player.y, 400 + sin(this.frameRate/20) * 2, 8000 + canvas.height * 2);
