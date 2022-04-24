@@ -72,6 +72,7 @@ Change Log:
         -Fixed bugs
         -You can get a manor which gives you tier 2 soldiers called squires
         -Stopped game from crashing sometimes
+        -You can choose player color
 -->
 <html>
     <head>
@@ -1057,39 +1058,39 @@ function menu() {
     rect(10, canvas.height/35 + canvas.height/10 - (canvas.width/600) * 3, canvas.width/3.9, canvas.width/4.01);
     // change colors {
     // White box
-    rect(10, canvas.height/1.95, canvas.width/3.9, canvas.width/8);
+    rect(10, canvas.width/3, canvas.width/3.9, canvas.width/8);
     // Change Skin text
     fill(0, 0, 0);
-    text("Change Skin", 10 + canvas.width/7.8, canvas.height/1.775, canvas.width/30)
+    text("Change Skin", 10 + canvas.width/7.8, canvas.width/2.75, canvas.width/30)
     // Light skin color
     fill(255, 200, 100);
-    button(22.5 + canvas.width/23 * 0, canvas.height * 0.575, canvas.width/25, canvas.width/25, function() {
+    button(22.5 + canvas.width/23 * 0, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
         player.color = [255, 200, 100];
     }, ["", 100]);
     // Dark skin color
     fill(230, 170, 70);
-    button(22.5 + canvas.width/23 * 1, canvas.height * 0.575, canvas.width/25, canvas.width/25, function() {
+    button(22.5 + canvas.width/23 * 1, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
         player.color = [230, 170, 70];
     }, ["", 100]);
     // Black
     fill(0, 0, 0);
-    button(22.5 + canvas.width/23 * 2, canvas.height * 0.575, canvas.width/25, canvas.width/25, function() {
+    button(22.5 + canvas.width/23 * 2, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
         player.color = [0, 0, 0];
     }, ["", 100]);
     // Red
     fill(255, 0, 0);
-    button(22.5 + canvas.width/23 * 3, canvas.height * 0.575, canvas.width/25, canvas.width/25, function() {
+    button(22.5 + canvas.width/23 * 3, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
         player.color = [255, 0, 0];
     }, ["", 100]);
     // Blue
     fill(0, 0, 255);
-    button(22.5 + canvas.width/23 * 4, canvas.height * 0.575, canvas.width/25, canvas.width/25, function() {
+    button(22.5 + canvas.width/23 * 4, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
         player.color = [0, 0, 255];
     }, ["", 100]);
     // }
     // Player skin color right now
     fill(player.color[0], player.color[1], player.color[2]);
-    rect(10 + canvas.width/100, canvas.height/1.55, canvas.width/3.9 - canvas.width/50, canvas.width/32)
+    rect(10 + canvas.width/100, canvas.width/2.38, canvas.width/3.9 - canvas.width/50, canvas.width/32)
     // Controls/Instruction text
     fill(0, 0, 0);
     text("How To Play", canvas.width/8 + 10, canvas.height/13 + canvas.height/10, canvas.width/26);
