@@ -60,7 +60,7 @@ Change Log:
         Found Glitch that you get age 3 stuff even though you are at age 2 [FIXED]
         -Started cleaning code
     April 23 2022
-        -Objects have health
+        -Objects have hp
         -You can delete objects by hitting it
         -Added milita soldier graphics
         -Soldiers follow you
@@ -77,6 +77,11 @@ Change Log:
         -Added orcs
         -Orcs follow orc genaral
         -Orcs collide with stuff
+        -Orc groups usually spawn more milta then better orcs
+    April 25 2022
+        -Orc groups have a random number of orcs (more 15 then 1)
+        -Wolfs drop 200 gold
+        -Added a blank slate for the shop
 -->
 <html>
     <head>
@@ -228,22 +233,22 @@ var orcs = []; // orc soldier list
 var blockStats = {
     woodBlock: {
         size: [25, 25],
-        health: 380,
+        hp: 380,
         gives: [10, 0, 0, 0]
     },
     stoneBlock: {
         size: [25, 25],
-        health: 900,
+        hp: 900,
         gives: [0, 20, 0, 0]
     },
     barracks: {
         size: [25, 50],
-        health: 400,
+        hp: 400,
         gives: [250, 250, 250, 200]
     },
     manor: {
         size: [25, 50],
-        health: 600,
+        hp: 600,
         gives: [350, 300, 300, 250]
     }
 }; // stats of all the blocks
@@ -332,6 +337,23 @@ function grid() {
         rect(x - player.x % 50, 0, 2, canvas.height, 0);
     }
 };
+function randomGuy() {
+    var choose = round(random(0, 100));
+    if(choose < 75) {
+        return "milita";
+    } else if(choose <= 100) {
+        return "squire";
+    }
+};
+function baisedRandom() {
+    var choose = round(random(0, 225))
+    for(var i = 0; i < 15; i+=1) {
+        if(choose < (i * i)) {
+            return i;
+        }
+    }
+    return 15;
+};
 
 // Player functions
 function Player() {
@@ -357,6 +379,8 @@ function Player() {
     this.lvl = 1;
     // used for upgrading age, LVL Till end of upgrade, LVL so far
     this.upgrade = [1, 0.1];
+    // toggle shop off and on
+    this.showShop = false;
 };
 Player.prototype.update = function() {
     this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
@@ -523,7 +547,22 @@ Player.prototype.ui = function() {
     rect(canvas.width/2 - 149, canvas.height - 79, (298/((this.lvl + (this.lvl + 1)) * 32.5)) * this.exp, 13)
     fill(255, 255, 255);
     text("Age: " + this.lvl, canvas.width/2, canvas.height - 85);
+    // shop button
+    fill(0, 0, 0, 0.5)
+    button(canvas.width - 35, 10, 25, 25, function() {
+        player.showShop = !player.showShop;
+    }, ["🛒", 15]);
+    // if we should show shop
+    if(this.showShop) {
+        // show shop
+        fill(0, 0, 0, 0.5);
+        rect(canvas.width/8, 35, canvas.width - canvas.width/4, canvas.height - 40, 0);
+        fill(255, 255, 255);
+        text("Shop", canvas.width/2, 75, 45)
+    }
+    // if holding a block
     if(this.inv[this.holding][1] === "block") {
+        // displa the cost of the block
         fill(0, 0, 0, 0.5)
         rect(canvas.width - 110, 10, 100, 100, 0);
         fill(255, 255, 255);
@@ -635,7 +674,7 @@ function object(x, y, r, type) {
     this.r = r;
     this.type = type;
     this.size = blockStats[this.type].size;
-    this.health = blockStats[this.type].health;
+    this.hp = blockStats[this.type].hp;
     this.gives = blockStats[this.type].gives
 };
 object.prototype.draw = function() {
@@ -677,7 +716,7 @@ object.prototype.collide = function(t, x, y) {
     }
     if(x > 0 && rectToRect(this.x, this.y, this.size[0] + 10, this.size[1] + 10, t.x + cos(t.r - 160) * t.weponLength + x, t.y + sin(t.r - 160) * t.weponLength + y, t.weponSize, t.weponSize)) {
         if(clicked || keys[32] && keyPress <= 10) {
-            this.health-=t.weponDamage;
+            this.hp-=t.weponDamage;
         }
     }
 };
@@ -687,28 +726,34 @@ function tree() {
     this.x = round(random(-4000, 4000));
     this.y = round(random(-4000, 4000));
     this.s = round(random(50, 100));
+    this.offset = [0, 0];
 };
 tree.prototype.draw = function() {
+    // first layer
     fill(0, 150 + cos(this.x + this.y) * 9, 0);
-    ellipse(this.x - player.x, this.y - player.y, this.s, this.s, 0);
+    ellipse(this.x - player.x + this.offset[0], this.y - player.y + this.offset[1], this.s, this.s, 0);
     var x = this.x - player.x;
     var y = this.y - player.y;
     var s = this.s * 0.95;
     for(var i = 0; i < 10; i+=1) {
-        rect(x, y, s, s, this.x + i);
+        rect(x + this.offset[0], y + this.offset[1], s, s, this.x + i);
     }
+    // second layer
     fill(0, 140 + cos(this.x + this.y) * 9, 0)
-    ellipse(this.x - player.x, this.y - player.y, this.s * 0.66, this.s * 0.66, 0);
+    ellipse(this.x - player.x + this.offset[0], this.y - player.y + this.offset[1], this.s * 0.66, this.s * 0.66, 0);
     s = this.s * 0.61;
     for(var i = 0; i < 10; i+=1) {
-        rect(x, y, s, s, this.x + i);
+        rect(x + this.offset[0], y + this.offset[1], s, s, this.x + i);
     }
+    // third layer
     fill(0, 130 + cos(this.x + this.y) * 9, 0)
-    ellipse(this.x - player.x, this.y - player.y, this.s * 0.33, this.s * 0.33, 0);
+    ellipse(this.x - player.x + this.offset[0], this.y - player.y + this.offset[1], this.s * 0.33, this.s * 0.33, 0);
     s = this.s * 0.36;
     for(var i = 0; i < 10; i+=1) {
-        rect(x, y, s, s, this.x + i);
+        rect(x + this.offset[0], y + this.offset[1], s, s, this.x + i);
     }
+    this.offset[0] = lerp(this.offset[0], 0, 0.1);
+    this.offset[1] = lerp(this.offset[1], 0, 0.1);
 };
 tree.prototype.collide = function(t, x, y) {
     if(x === undefined) {
@@ -726,6 +771,7 @@ tree.prototype.collide = function(t, x, y) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
             t.wood+=1;
             t.exp+=1;
+            this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)]
         }
     }
 };
@@ -735,10 +781,13 @@ function rock() {
     this.x = round(random(-4000, 4000));
     this.y = round(random(-4000, 4000));
     this.s = round(random(25, 50));
+    this.offset = [0, 0];
 };
 rock.prototype.draw = function() {
     fill(100, 100, 100);
-    heptagon(this.x - player.x, this.y - player.y, this.s + 5)
+    heptagon(this.x - player.x + this.offset[0], this.y - player.y + this.offset[1], this.s + 5);
+    this.offset[0] = lerp(this.offset[0], 0, 0.1);
+    this.offset[1] = lerp(this.offset[1], 0, 0.1);
 };
 rock.prototype.collide = function(t, x, y) {
     if(x === undefined) {
@@ -756,6 +805,7 @@ rock.prototype.collide = function(t, x, y) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
             t.stone+=1;
             t.exp+=1;
+            this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)];
         }
     }
 };
@@ -765,10 +815,13 @@ function gold() {
     this.x = round(random(-4000, 4000));
     this.y = round(random(-4000, 4000));
     this.s = round(random(25, 50));
+    this.offset = [0, 0];
 };
 gold.prototype.draw = function() {
     fill(255, 200, 0);
     heptagon(this.x - player.x, this.y - player.y, this.s + 5)
+    this.offset[0] = lerp(this.offset[0], 0, 0.1);
+    this.offset[1] = lerp(this.offset[1], 0, 0.1);
 };
 gold.prototype.collide = function(t, x, y) {
     if(x === undefined) {
@@ -784,8 +837,9 @@ gold.prototype.collide = function(t, x, y) {
     }
     if(clicked || keys[32] && keyPress <= 10) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
-            t.gold+=1;
-            t.exp+=1;
+            t.gold+=5;
+            t.exp+=5;
+            this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)];
         }
     }
 };
@@ -794,19 +848,22 @@ gold.prototype.collide = function(t, x, y) {
 function bush() {
     this.x = round(random(-4000, 4000));
     this.y = round(random(-3000, 3000));
+    this.offset = [0, 0];
 };
 bush.prototype.draw = function() {
     fill(0, 150, 0);
-    ellipse(this.x - player.x, this.y - player.y, 20, 20, 0);
-    ellipse(this.x - player.x + cos(this.x) * 10, this.y - player.y + sin(this.x) * 10, 15, 15, 0);
-    ellipse(this.x - player.x - cos(this.y) * 10, this.y - player.y - sin(this.y) * 10, 15, 15, 0);
-    ellipse(this.x - player.x + cos(this.x) * 10, this.y - player.y + cos(this.x) * 10, 15, 15, 0);
-    ellipse(this.x - player.x - cos(this.y) * 10, this.y - player.y - sin(this.y) * 10, 15, 15, 0);
+    ellipse(this.x - player.x + this.offset[0], this.y - player.y, 20, 20, 0);
+    ellipse(this.x - player.x + cos(this.x) * 10 + this.offset[0], this.y - player.y + sin(this.x) * 10 + this.offset[1], 15, 15, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10 + this.offset[0], this.y - player.y - sin(this.y) * 10 + this.offset[1], 15, 15, 0);
+    ellipse(this.x - player.x + cos(this.x) * 10 + this.offset[0], this.y - player.y + cos(this.x) * 10 + this.offset[1], 15, 15, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10 + this.offset[0], this.y - player.y - sin(this.y) * 10 + this.offset[1], 15, 15, 0);
     fill(255, 0, 0)
-    ellipse(this.x - player.x + cos(this.x) * 10 - 5, this.y - player.y + sin(this.x) * 10 + 5, 2, 2, 0);
-    ellipse(this.x - player.x - cos(this.y) * 10 + 5, this.y - player.y - sin(this.y) * 10 - 5, 2, 2, 0);
-    ellipse(this.x - player.x + cos(this.x) * 10 - 5, this.y - player.y + cos(this.x) * 10 - 5, 2, 2, 0);
-    ellipse(this.x - player.x - cos(this.y) * 10 + 5, this.y - player.y - sin(this.y) * 10 + 5, 2, 2, 0);;
+    ellipse(this.x - player.x + cos(this.x) * 10 - 5 + this.offset[0], this.y - player.y + sin(this.x) * 10 + 5 + this.offset[1], 2, 2, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10 + 5 + this.offset[0], this.y - player.y - sin(this.y) * 10 - 5 + this.offset[1], 2, 2, 0);
+    ellipse(this.x - player.x + cos(this.x) * 10 - 5 + this.offset[0], this.y - player.y + cos(this.x) * 10 - 5 + this.offset[1], 2, 2, 0);
+    ellipse(this.x - player.x - cos(this.y) * 10 + 5 + this.offset[0], this.y - player.y - sin(this.y) * 10 + 5 + this.offset[1], 2, 2, 0);
+    this.offset[0] = lerp(this.offset[0], 0, 0.1);
+    this.offset[1] = lerp(this.offset[1], 0, 0.1);
 };
 bush.prototype.collide = function(t, x, y) {
     if(x === undefined) {
@@ -824,6 +881,7 @@ bush.prototype.collide = function(t, x, y) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
             t.food+=1;
             t.exp+=1;
+            this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)];
         }
     }
 };
@@ -898,13 +956,13 @@ function soldier(x, y, type) {
     switch(this.type) {
         case "milita":
             this.maxHp = 100;
-            this.health = this.maxHp;
+            this.hp = this.maxHp;
             this.damage = 25;
             this.reload = 20;
         break;
         case "squire":
             this.maxHp = 150;
-            this.health = this.maxHp;
+            this.hp = this.maxHp;
             this.damage = 35;
             this.reload = 20;
         break;
@@ -929,7 +987,7 @@ soldier.prototype.draw = function() {
     fill(50, 50, 50);
     rect((this.x - player.x) - 15, (this.y - player.y) + 15, 30, 5)
     fill(250, 0, 0);
-    rect((this.x - player.x) - 15, (this.y - player.y) + 15, (30/this.maxHp) * this.health, 5);
+    rect((this.x - player.x) - 15, (this.y - player.y) + 15, (30/this.maxHp) * this.hp, 5);
 };
 soldier.prototype.update = function() {
     // move towords the player
@@ -948,9 +1006,9 @@ soldier.prototype.update = function() {
     // -1 to the attack cooldown
     this.coolDown-=1;
     // heal
-    if(this.health <= 100 && round(random(0, 100)) < 1) {
-        this.health+=20;
-        this.health = constrain(this.health, 0, 100)
+    if(this.hp <= 100 && round(random(0, 100)) < 1) {
+        this.hp+=20;
+        this.hp = constrain(this.hp, 0, 100)
     }
     // if soldier is in the river
     if(this.x + canvas.width/2 > -200 && this.x + canvas.width/2 < 200) {
@@ -958,7 +1016,7 @@ soldier.prototype.update = function() {
         this.y-=0.5;
     }
     // constrain the soldier
-    this.x = constrain(this.x, -4000, 4000);
+    this.x = constrain(this.x, -4000 + canvas.width/2, 4000 + canvas.width/2);
     this.y = constrain(this.y, -4000, 4000);
     // reset closest
     this.closest = 1000000;
@@ -978,7 +1036,7 @@ soldier.prototype.collide = function(t, hurt) {
         this.x+=(this.x - t.x)/(dist(this.x, this.y, t.x, t.y));
         this.y+=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
         if(hurt) {
-            this.health-=t.damage;
+            this.hp-=t.damage;
             if(this.coolDown <= 0) {
                 t.hp-=this.damage;
                 this.coolDown = this.reload;
@@ -998,13 +1056,13 @@ function orc(x, y, type) {
     switch(this.type) {
         case "milita":
             this.maxHp = 100;
-            this.health = this.maxHp;
+            this.hp = this.maxHp;
             this.damage = 25;
             this.reload = 20;
         break;
         case "squire":
             this.maxHp = 150;
-            this.health = this.maxHp;
+            this.hp = this.maxHp;
             this.damage = 35;
             this.reload = 20;
         break;
@@ -1029,7 +1087,7 @@ orc.prototype.draw = function() {
     fill(50, 50, 50);
     rect((this.x - player.x) - 15, (this.y - player.y) + 15, 30, 5)
     fill(250, 0, 0);
-    rect((this.x - player.x) - 15, (this.y - player.y) + 15, (30/this.maxHp) * this.health, 5);
+    rect((this.x - player.x) - 15, (this.y - player.y) + 15, (30/this.maxHp) * this.hp, 5);
 };
 orc.prototype.update = function() {
     // move towords the player
@@ -1048,9 +1106,9 @@ orc.prototype.update = function() {
     // -1 to the attack cooldown
     this.coolDown-=1;
     // heal
-    if(this.health <= 100 && round(random(0, 100)) < 1) {
-        this.health+=20;
-        this.health = constrain(this.health, 0, 100)
+    if(this.hp <= 100 && round(random(0, 100)) < 1) {
+        this.hp+=20;
+        this.hp = constrain(this.hp, 0, 100)
     }
     // if soldier is in the river
     if(this.x + canvas.width/2 > -200 && this.x + canvas.width/2 < 200) {
@@ -1058,7 +1116,7 @@ orc.prototype.update = function() {
         this.y-=0.5;
     }
     // constrain the soldier
-    this.x = constrain(this.x, -4000, 4000);
+    this.x = constrain(this.x, -4000 + canvas.width/2, 4000 + canvas.width/2);
     this.y = constrain(this.y, -4000, 4000);
     // reset closest
     this.closest = 1000000;
@@ -1066,7 +1124,7 @@ orc.prototype.update = function() {
 orc.prototype.collide = function(t, hurt) {
     if(clicked || keys[32] && keyPress <= 10) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
-            this.health-=t.weponDamage;
+            this.hp-=t.weponDamage;
         }
     }
     if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 25 || !hurt && dist(this.x, this.y, t.x, t.y) < 25) {
@@ -1092,8 +1150,8 @@ function orcGenarel(x, y) {
     this.ar = 0;
     this.coolDown = 0;
     this.closest = 10000000;
-    this.maxHp = 100;
-    this.health = this.maxHp;
+    this.maxHp = 200;
+    this.hp = this.maxHp;
     this.damage = 25;
     this.reload = 20;
 };
@@ -1105,7 +1163,7 @@ orcGenarel.prototype.draw = function() {
     fill(50, 50, 50);
     rect((this.x - player.x) - 15, (this.y - player.y) + 15, 30, 5)
     fill(250, 0, 0);
-    rect((this.x - player.x) - 15, (this.y - player.y) + 15, (30/this.maxHp) * this.health, 5);
+    rect((this.x - player.x) - 15, (this.y - player.y) + 15, (30/this.maxHp) * this.hp, 5);
 };
 orcGenarel.prototype.update = function() {
     this.t-=1;
@@ -1127,9 +1185,9 @@ orcGenarel.prototype.update = function() {
     this.y = constrain(this.y, -4000 - canvas.height/2, 4000 + canvas.height/2);
     this.coolDown-=1;
     // heal
-    if(this.health <= 100 && round(random(0, 100)) < 2) {
-        this.health+=40;
-        this.health = constrain(this.health, 0, 100)
+    if(this.hp <= 100 && round(random(0, 100)) < 10) {
+        this.hp+=40;
+        this.hp = constrain(this.hp, 0, 100)
     }
 };
 orcGenarel.prototype.collide = function(t, hurt) {
@@ -1138,7 +1196,7 @@ orcGenarel.prototype.collide = function(t, hurt) {
         this.ar = 0;
         if(clicked || keys[32] && keyPress <= 10) {
             if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
-                this.health-=t.weponDamage;
+                this.hp-=t.weponDamage;
             }
         }
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 25) {
@@ -1215,9 +1273,9 @@ for(var i = 0; i < 100; i+=1) {
     //wolves.push(new wolf(player.x, player.y));
 }
 // Orc spawning
-orcGeneral = new orcGenarel(player.x, player.y)
-for(var i = 0; i < 15; i+=1) {
-    orcs.push(new orc(player.x - 100 + round(random(-10, 10)), player.y - 100 + round(random(-10, 10)), "milita"));
+orcGeneral = new orcGenarel(round(random(-4000, 4000)), round(random(-4000, 4000)))
+for(var i = 0; i < baisedRandom(); i+=1) {
+    orcs.push(new orc(orcGeneral.x + round(random(-10, 10)), orcGeneral.y - 100 + round(random(-10, 10)), randomGuy()));
 }
 // button function
 function button(x, y, width, height, does, txt) {
@@ -1391,7 +1449,7 @@ function draw() {
                         objects[i].collide(orcs[orcy], 0, 0);
                     }
                     // if the objects helath is less then 0
-                    if(objects[i].health <= 0) {
+                    if(objects[i].hp <= 0) {
                         // returns the matierials the player used to build the object
                         player.wood+=objects[i].gives[0];
                         player.stone+=objects[i].gives[1];
@@ -1412,6 +1470,7 @@ function draw() {
                         wolves.splice(i, 1);
                         player.food+=200;
                         player.exp+=100;
+                        player.gold+=200;
                     }
                 }
                 wolves[i].update();
@@ -1421,6 +1480,7 @@ function draw() {
                 // do the soldiers functions
                 soldiers[i].draw();
                 soldiers[i].update();
+                soldiers[i].collide(orcGeneral);
                 // collide and hurt wolves
                 for(var j = 0; j < wolves.length; j+=1) {
                     soldiers[i].collide(wolves[j], true);
@@ -1431,8 +1491,12 @@ function draw() {
                         soldiers[i].collide(soldiers[o]);
                     }
                 }
-                if(soldiers[i].health <= 0) {
-                    soldeirs.splice(i, 1);
+                // loop and damge the orcs
+                for(var orcy = 0; orcy < orcs.length; orcy+=1) {
+                    soldiers[i].collide(orcs[orcy], true);
+                }
+                if(soldiers[i].hp <= 0) {
+                    soldiers.splice(i, 1);
                 }
             }
             // loop through the orcs
@@ -1440,10 +1504,6 @@ function draw() {
                 // do the orc functions
                 orcs[i].draw();
                 orcs[i].update();
-                // loop damge and collide with you soldiers
-                for(var j = 0; j < soldiers.length; j+=1) {
-                    orcs[i].collide(soldiers[j], true);
-                }
                 // loop and collide with other orcs
                 for(var o = 0; o < orcs.length; o+=1) {
                     if(i !== o) {
@@ -1451,17 +1511,28 @@ function draw() {
                     }
                 }
                 orcs[i].collide(player, true);
+                if(orcs[i].hp < 0) {
+                    orcs.splice(i, 1);
+                }
             }
             player.ui();
             fill(255, 255, 255);
             text("Position: " + round(player.x) + ", " + round(player.y), 65, 15, 12);
-            text("Health: " + round(player.hp) + "/" + "100", 65, 30, 12)
+            text("hp: " + round(player.hp) + "/" + "100", 65, 30, 12)
             text("Entitys: " + round(entitys), 65, 45, 12);
             if(player.hp <= 0) {
                 player.reset();
                 wolves = [];
                 objects = [];
                 scene = "menu";
+            }
+            if(orcGeneral.hp <= 0) {
+                orcs = [];
+                // Orc spawning
+                orcGeneral = new orcGenarel(round(random(-4000, 4000)), round(random(-4000, 4000)))
+                for(var i = 0; i < baisedRandom(); i+=1) {
+                    orcs.push(new orc(orcGeneral.x + round(random(-10, 10)), orcGeneral.y - 100 + round(random(-10, 10)), randomGuy()));
+                }
             }
             fill(0, 0, 0, 0.5);
             rect(10, canvas.height - 110, 100, 100);
