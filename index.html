@@ -1386,30 +1386,30 @@ function menu() {
     fill(255, 255, 255);
     rect(canvas.width/5 - canvas.width/10/0.7, canvas.height/4 - canvas.height/25, canvas.width/5/0.7, canvas.width/9);
     fill(0, 0, 0);
-    text("Change Skin", canvas.width/5, canvas.height/4 + canvas.height/100, canvas.width/25);
+    text("Change Skin", canvas.width/5, canvas.height/3.9, canvas.width/25);
     // Light skin color
     fill(255, 200, 100);
-    button(canvas.width/13 + canvas.width/20 * 0, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 0, canvas.height/3.5, canvas.width/25, canvas.width/25, function() {
         player.color = [255, 200, 100];
     }, ["", 100]);
     // Dark skin color
     fill(190, 150, 50);
-    button(canvas.width/13 + canvas.width/20 * 1, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 1, canvas.height/3.5, canvas.width/25, canvas.width/25, function() {
         player.color = [190, 150, 50];
     }, ["", 100]);
     // Red skin color
     fill(255, 0, 0);
-    button(canvas.width/13 + canvas.width/20 * 2, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 2, canvas.height/3.5, canvas.width/25, canvas.width/25, function() {
         player.color = [255, 0, 0];
     }, ["", 100]);
     // Blue skin color
     fill(0, 0, 255);
-    button(canvas.width/13 + canvas.width/20 * 3, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 3, canvas.height/3.5, canvas.width/25, canvas.width/25, function() {
         player.color = [0, 0, 255];
     }, ["", 100]);
     // Black skin color
     fill(0, 0, 0);
-    button(canvas.width/13 + canvas.width/20 * 4, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 4, canvas.height/3.5, canvas.width/25, canvas.width/25, function() {
         player.color = [0, 0, 0];
     }, ["", 100]);
     // }
