@@ -82,6 +82,15 @@ Change Log:
         -Orc groups have a random number of orcs (more 15 then 1)
         -Wolfs drop 200 gold
         -Added a blank slate for the shop
+    April 26 2022
+        -Added healer hat
+        -Added soldier helmet
+    April 27 2022
+        -Re did the menu screen
+    April 28 2022
+        -Change game title
+    April 29 2022
+        
 -->
 <html>
     <head>
@@ -252,6 +261,7 @@ var blockStats = {
         gives: [350, 300, 300, 250]
     }
 }; // stats of all the blocks
+var alphebet = "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z".split(","); // alphebet for typing
 
 // Misc. functions
 function drawItems(x, y, inv, i) {
@@ -329,6 +339,10 @@ function heptagon(x, y, r) {
     ctx.fill();
 };
 function grid() {
+    // the ground
+    fill(0, 174, 33);
+    rect(0, 0, canvas.width, canvas.height)
+    // the lines
     fill(0, 0, 0, 0.1)
     for(var y = -25; y < canvas.height + 25; y+=25) {
         rect(0, y - player.y % 50, canvas.width, 2, 0);
@@ -367,7 +381,7 @@ function Player() {
     this.stone = 0;
     this.wood = 0;
     this.food = 0;
-    this.gold = 0;
+    this.gold = 6000;
     this.offset = 0;
     this.offsetA = 0;
     this.weponSize = 10;
@@ -377,10 +391,15 @@ function Player() {
     this.maxHp = 100;
     this.exp = 0;
     this.lvl = 1;
+    this.armor = 0; // how much armor the player has
     // used for upgrading age, LVL Till end of upgrade, LVL so far
     this.upgrade = [1, 0.1];
     // toggle shop off and on
     this.showShop = false;
+    // what hat the player is wearing
+    this.playerHat = "none";
+    // the name of the player
+    this.playerName = "player";
 };
 Player.prototype.update = function() {
     this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
@@ -425,6 +444,31 @@ Player.prototype.draw = function() {
     ctx.rotate(this.r + this.offset);
     drawItems(0, 0, this.inv, this.holding);
     ctx.restore();
+    switch(this.playerHat) {
+        case "none":
+            
+        break;
+        case "healingHelmet":
+            // draw the healing helmet
+            fill(130, 130, 130);
+            ellipse(canvas.width/2, canvas.height/2, 10, 10, 0);
+            fill(255, 255, 255);
+            ellipse(canvas.width/2, canvas.height/2, 7, 7, 0);
+            fill(255, 0, 0);
+            rect(canvas.width/2 - 6, canvas.height/2 - 1.5, 12, 3, 0);
+            rect(canvas.width/2 - 1.5, canvas.height/2 - 6, 3, 12, 0);
+        break;
+        case "soldierHelmet":
+            // draw the healing helmet
+            fill(130, 130, 130);
+            ellipse(canvas.width/2, canvas.height/2, 10, 10, 0);
+            fill(132, 132, 132);
+            ellipse(canvas.width/2, canvas.height/2, 6, 6, 0);
+            fill(125, 125, 125);
+            rect(canvas.width/2 - cos(this.r) * 7, canvas.height/2 - sin(this.r) * 6.25, 14, 3, this.r);
+            this.armor = 12.5;
+        break;
+    }
 };
 Player.prototype.ui = function() {
     for(var i = 0; i < this.inv.length; i+=1) {
@@ -558,7 +602,21 @@ Player.prototype.ui = function() {
         fill(0, 0, 0, 0.5);
         rect(canvas.width/8, 35, canvas.width - canvas.width/4, canvas.height - 40, 0);
         fill(255, 255, 255);
-        text("Shop", canvas.width/2, 75, 45)
+        text("Shop", canvas.width/2, 75, canvas.height/8.88889);
+        fill(0, 0, 0, 0.5);
+        button(canvas.width/8, canvas.height/4.44444, canvas.width - canvas.width/4, (canvas.height - 40)/8, function() {
+            if(player.gold >= 2500) {
+                player.gold-=2500;
+            }
+            player.playerHat = "healingHelmet"
+        }, ["Healer Helmet (2500 G)", 20]);
+        fill(0, 0, 0, 0.5);
+        button(canvas.width/8, canvas.height/4.44444/0.6, canvas.width - canvas.width/4, (canvas.height - 40)/8, function() {
+            if(player.gold >= 4000) {
+                player.gold-=4000;
+            }
+            player.playerHat = "soldierHelmet"
+        }, ["Soldier Helmet (4000 G)", 20]);
     }
     // if holding a block
     if(this.inv[this.holding][1] === "block") {
@@ -895,6 +953,7 @@ function wolf(x, y) {
     this.t = 0;
     this.hp = 100;
     this.damage = 1;
+    this.armor = 0;
 };
 wolf.prototype.draw = function() {
     fill(100, 100, 100)
@@ -935,11 +994,11 @@ wolf.prototype.collide = function(t) {
             var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
             t.x-=cos(r);
             t.y-=sin(r);
-            t.hp-=this.damage;
+            t.hp-=constrain(this.damage - t.armor, 0, Infinity);
         }
         if(clicked || keys[32] && keyPress <= 10) {
             if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
-                this.hp-=t.weponDamage;
+                this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
             }
         }
     }
@@ -959,12 +1018,14 @@ function soldier(x, y, type) {
             this.hp = this.maxHp;
             this.damage = 25;
             this.reload = 20;
+            this.armor = 0;
         break;
         case "squire":
             this.maxHp = 150;
             this.hp = this.maxHp;
             this.damage = 35;
             this.reload = 20;
+            this.armor = 1;
         break;
     }
 };
@@ -1036,9 +1097,8 @@ soldier.prototype.collide = function(t, hurt) {
         this.x+=(this.x - t.x)/(dist(this.x, this.y, t.x, t.y));
         this.y+=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
         if(hurt) {
-            this.hp-=t.damage;
             if(this.coolDown <= 0) {
-                t.hp-=this.damage;
+                t.hp-=constrain(this.damage - t.armor, 0, Infinity);
                 this.coolDown = this.reload;
             }
         }
@@ -1059,12 +1119,14 @@ function orc(x, y, type) {
             this.hp = this.maxHp;
             this.damage = 25;
             this.reload = 20;
+            this.armor = 0;
         break;
         case "squire":
             this.maxHp = 150;
             this.hp = this.maxHp;
             this.damage = 35;
             this.reload = 20;
+            this.armor = 1;
         break;
     }
 };
@@ -1124,7 +1186,7 @@ orc.prototype.update = function() {
 orc.prototype.collide = function(t, hurt) {
     if(clicked || keys[32] && keyPress <= 10) {
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
-            this.hp-=t.weponDamage;
+            this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
         }
     }
     if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 25 || !hurt && dist(this.x, this.y, t.x, t.y) < 25) {
@@ -1134,7 +1196,7 @@ orc.prototype.collide = function(t, hurt) {
         this.y+=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
         if(hurt) {
             if(this.coolDown <= 0) {
-                t.hp-=this.damage;
+                t.hp-=constrain(this.damage - t.armor, 0, Infinity);
                 this.coolDown = this.reload;
             }
         }
@@ -1154,6 +1216,7 @@ function orcGenarel(x, y) {
     this.hp = this.maxHp;
     this.damage = 25;
     this.reload = 20;
+    this.armor = 2;
 };
 orcGenarel.prototype.draw = function() {
     fill(0, 163, 14);
@@ -1196,7 +1259,7 @@ orcGenarel.prototype.collide = function(t, hurt) {
         this.ar = 0;
         if(clicked || keys[32] && keyPress <= 10) {
             if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
-                this.hp-=t.weponDamage;
+                this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
             }
         }
         if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 25) {
@@ -1206,7 +1269,7 @@ orcGenarel.prototype.collide = function(t, hurt) {
             this.y+=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
             if(hurt) {
                 if(this.coolDown <= 0) {
-                    t.hp-=this.damage;
+                    t.hp-=constrain(this.damage - t.armor, 0, Infinity);
                     this.coolDown = this.reload;
                 }
             }
@@ -1219,15 +1282,12 @@ function Map() {
     this.frameRate = 0;
 };
 Map.prototype.draw = function() {
-    // draw the ground
-    fill(0, 200, 0);
-    rect(0, 0, canvas.width, canvas.height, 0);
     // snow boime
     fill(240, 240, 240);
-    rect(-4000 - player.x, -4000 - player.y, 8000, 1000 + canvas.height/2);
+    rect(-4000 - player.x + canvas.width, -4000 - player.y, 8000, 1000 + canvas.height/2);
     // desert boime
     fill(235, 213, 52);
-    rect(-4000 - player.x, 3000 - player.y + canvas.height/2, 8000, 1000 + canvas.height/2);
+    rect(-4000 - player.x + canvas.width, 3000 - player.y + canvas.height/2, 8000, 1000 + canvas.height/2);
     // draw the beach
     fill(247, 225, 59);
     rect(-210 - player.x + canvas.width/2, -4000 - player.y, 420, 8000 + canvas.height * 2)
@@ -1273,7 +1333,7 @@ for(var i = 0; i < 100; i+=1) {
     //wolves.push(new wolf(player.x, player.y));
 }
 // Orc spawning
-orcGeneral = new orcGenarel(round(random(-4000, 4000)), round(random(-4000, 4000)))
+orcGeneral = new orcGenarel(round(random(-4000, 4000)), round(random(-4000, 4000)));
 for(var i = 0; i < baisedRandom(); i+=1) {
     orcs.push(new orc(orcGeneral.x + round(random(-10, 10)), orcGeneral.y - 100 + round(random(-10, 10)), randomGuy()));
 }
@@ -1289,64 +1349,77 @@ function button(x, y, width, height, does, txt) {
 // menu function
 function menu() {
     textAlign("center");
-    fill(0, 200, 0);
-    rect(0, 0, canvas.width, canvas.height, 0);
+    // the background {
     grid();
-    fill(0, 0, 0, 0.5)
-    button(canvas.width/2 -  canvas.width/10, canvas.height * 0.60, canvas.width/5, canvas.width/15, function() {
-        scene = "game";
-    }, ["Play", canvas.width/30]);
-    fill(0, 0, 0);
-    text("Game Title", canvas.width/2 + 20 - canvas.width/200, canvas.height/2 - 47, canvas.width/10);
+    fill(0, 0, 0, 0.5);
+    rect(0, 0, canvas.width, canvas.height, 0);
+    // }
+    // enter game box {
+    fill(100, 100, 100);
+    rect(canvas.width/2 - canvas.width/10/0.7, canvas.height/4 - canvas.height/35, canvas.width/5/0.7, canvas.width/9 + canvas.height/25 * 2);
     fill(255, 255, 255);
-    text("Game Title", canvas.width/2 + 20, canvas.height/2 - 50, canvas.width/10);
-    rect(10, canvas.height/35 + canvas.height/10 - (canvas.width/600) * 3, canvas.width/3.9, canvas.width/4.01);
-    // change colors {
-    // White box
-    rect(10, canvas.width/3, canvas.width/3.9, canvas.width/8);
-    // Change Skin text
+    rect(canvas.width/2 - canvas.width/10/0.7, canvas.height/4 - canvas.height/25, canvas.width/5/0.7, canvas.width/9 + canvas.height/25 * 2);
+    fill(150, 150, 150);
+    rect(canvas.width/2 - canvas.width/7.5, canvas.height/4.09, canvas.width/3.75, canvas.width/20, 0);
     fill(0, 0, 0);
-    text("Change Skin", 10 + canvas.width/7.8, canvas.width/2.75, canvas.width/30)
+    text(player.playerName, canvas.width/2, canvas.height/3.4, canvas.width/30);
+    // allow players to type name {
+    for(var i = 0; i < alphebet.length; i+=1) {
+        if(keys[65 + i] && keyPress <= 0) {
+            player.playerName+=alphebet[i];
+            keyPress = 30;
+        }
+    }
+    if(keys[8] && keyPress <= 0) {
+        keyPress = 60;
+        player.playerName = player.playerName.slice(0, player.playerName.length - 1);
+    }
+    // }
+    fill(0, 200, 0);
+    button(canvas.width/2 -  canvas.width/10, canvas.height/3, canvas.width/5, canvas.width/15, function() {
+        scene = "game";
+    }, ["Enter Game", canvas.width/30]);
+    // }
+    // change skin { 
+    fill(100, 100, 100);
+    rect(canvas.width/5 - canvas.width/10/0.7, canvas.height/4 - canvas.height/35, canvas.width/5/0.7, canvas.width/9);
+    fill(255, 255, 255);
+    rect(canvas.width/5 - canvas.width/10/0.7, canvas.height/4 - canvas.height/25, canvas.width/5/0.7, canvas.width/9);
+    fill(0, 0, 0);
+    text("Change Skin", canvas.width/5, canvas.height/4 + canvas.height/100, canvas.width/25);
     // Light skin color
     fill(255, 200, 100);
-    button(22.5 + canvas.width/23 * 0, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 0, canvas.width/5, canvas.width/25, canvas.width/25, function() {
         player.color = [255, 200, 100];
     }, ["", 100]);
     // Dark skin color
-    fill(230, 170, 70);
-    button(22.5 + canvas.width/23 * 1, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
-        player.color = [230, 170, 70];
+    fill(190, 150, 50);
+    button(canvas.width/13 + canvas.width/20 * 1, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+        player.color = [190, 150, 50];
     }, ["", 100]);
-    // Black
-    fill(0, 0, 0);
-    button(22.5 + canvas.width/23 * 2, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
-        player.color = [0, 0, 0];
-    }, ["", 100]);
-    // Red
+    // Red skin color
     fill(255, 0, 0);
-    button(22.5 + canvas.width/23 * 3, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 2, canvas.width/5, canvas.width/25, canvas.width/25, function() {
         player.color = [255, 0, 0];
     }, ["", 100]);
-    // Blue
+    // Blue skin color
     fill(0, 0, 255);
-    button(22.5 + canvas.width/23 * 4, canvas.width/2.68, canvas.width/25, canvas.width/25, function() {
+    button(canvas.width/13 + canvas.width/20 * 3, canvas.width/5, canvas.width/25, canvas.width/25, function() {
         player.color = [0, 0, 255];
     }, ["", 100]);
-    // }
-    // Player skin color right now
-    fill(player.color[0], player.color[1], player.color[2]);
-    rect(10 + canvas.width/100, canvas.width/2.38, canvas.width/3.9 - canvas.width/50, canvas.width/32)
-    // Controls/Instruction text
+    // Black skin color
     fill(0, 0, 0);
-    text("How To Play", canvas.width/8 + 10, canvas.height/13 + canvas.height/10, canvas.width/26);
-    text("Movement: WASD", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + canvas.height/10, canvas.width/38)
-    text("or arrow keys", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + canvas.width/38 + canvas.height/10, canvas.width/38);
-       
-    text("Switch Item: Number", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 2.5 + canvas.height/10, canvas.width/38);
-    text("Pad", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 3.5 + canvas.height/10, canvas.width/38);
-    
-    text("Use Item: Click or", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 5 + canvas.height/10, canvas.width/38);
-    text("Space", canvas.width/8 + 10, canvas.height/13 + canvas.width/26 + (canvas.width/38) * 6 + canvas.height/10, canvas.width/38);
+    button(canvas.width/13 + canvas.width/20 * 4, canvas.width/5, canvas.width/25, canvas.width/25, function() {
+        player.color = [0, 0, 0];
+    }, ["", 100]);
+    // }
+    // game title {
+    fill(255, 255, 255);
+    fill(0, 0, 0);
+    text("Surviv", canvas.width/2, canvas.height/6, canvas.width/10);
+    fill(255, 255, 255);
+    text("Surviv", canvas.width/2 + 3, canvas.height/6 - 3, canvas.width/10);
+    // }
 };
 
 // do every thing
