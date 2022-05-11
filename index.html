@@ -6,12 +6,12 @@ CONTROLS:
     -Number pad to switch items
     -WASD or Arrow keys to move
 Change Log:
-    April 10 2022
+    April 10 2022 || Version 0.05
         -added blocks (not fineshed yet)
         -add block building (not fineshed yet)
         -made a 15 cap for building blocks
         (I will work on stone and mateirals next and school will slow down progress)
-    April 11 2022
+    April 11 2022|| Version 0.09
         -added so if you hit tree of stone you get the matierial
         -added so you can heal with the apple: +20 hp -10 food
         -added so when you build it uses 10 wood
@@ -19,29 +19,29 @@ Change Log:
         -added bush, you can hit it to get food.
         -added food display
         -added a grid pattern
-    April 12 2022
+    April 12 2022|| Version 0.1
         -fized collision (thanks to Dominic R.)
         -added exp and agging (you get exp for getting matierials)
         -added gold and stoen display
         -remade stone graphics from a circle to a heptagon
         -remade bush graphics added berries and changed shape
         -added gold ore you can hit it to get gold
-    April 13 2022
+    April 13 2022|| Version 0.2
         -added wolves
         -wolves now move even if you can't see them
         -wolves collide with trees (I NEED SOMEONE TO FIX THE COLLISION)
         -wolves collide with stone (I NEED SOMEONE TO FIX THE COLLISION)
         -wolves collide with gold (I NEED SOMEONE TO FIX THE COLLISION)
-    April 14 2022
+    April 14 2022|| Version 0.25
         -You can now do damage to wolves
         I will be competing so progross will be slow or will stop entiraly.
-    April 20 2022
+    April 20 2022|| Version 0.3
         I got back and I will get to work
         -Wolves follow you and attack you
         -You get food for killing wolves
-        -Fixed thw wolves hit boxes
+        -Fixed the wolves hit boxes
         -Started work on menu
-    April 21 2022
+    April 21 2022|| Version 0.375
         -Wolves have a name
         -Wolves have a helath bar
         -Menu got updated
@@ -49,7 +49,7 @@ Change Log:
         -Added Spear [Wepon]
         -Fixed wepon colision
         Started planning things with Milanote
-    April 22 2022
+    April 22 2022|| Version 0.45
         -Added Sword
         -Made wepons rotate and fit in the box
         -Added stone block
@@ -59,7 +59,7 @@ Change Log:
         -Blocks now collide with wolves
         Found Glitch that you get age 3 stuff even though you are at age 2 [FIXED]
         -Started cleaning code
-    April 23 2022
+    April 23 2022|| Version 0.7
         -Objects have hp
         -You can delete objects by hitting it
         -Added milita soldier graphics
@@ -68,7 +68,7 @@ Change Log:
         -Soldiers can die
         -Made barracks a block
         -If you place barracks it spawn a soldier
-    April 24 2022
+    April 24 2022|| Version 1.1
         -Fixed bugs
         -You can get a manor which gives you tier 2 soldiers called squires
         -Stopped game from crashing sometimes
@@ -78,19 +78,47 @@ Change Log:
         -Orcs follow orc genaral
         -Orcs collide with stuff
         -Orc groups usually spawn more milta then better orcs
-    April 25 2022
+    April 25 2022|| Version 1.2
         -Orc groups have a random number of orcs (more 15 then 1)
         -Wolfs drop 200 gold
         -Added a blank slate for the shop
-    April 26 2022
+    April 26 2022|| Version 1.25
         -Added healer hat
         -Added soldier helmet
-    April 27 2022
+    April 27 2022|| Version 1.26
         -Re did the menu screen
-    April 28 2022
+    April 28 2022|| Version 1.265
         -Change game title
-    April 29 2022
-        
+    April 29 2022|| Version 1.265
+        Nothing
+    April 30 2022|| Version 1.3
+        -Made title screen compatible with full screen
+        -changed ground color
+        -You can change you name
+    May 1 2022|| Version 1.35
+        -Added a bull
+        -Changed spawn point of the wolves
+        -Changed spawn point of the orcs
+        I got a dog so I wont do much today
+    May 9 2022|| Version 1.45
+        Took a break will now start working
+        -cleaned code
+        -bulls respawn
+        -added particles
+        -added dashing
+    May 10 2022|| Version 1.6
+        -removed dashing
+        -remade axe into one handed wepon
+        -remade spear into one handed wepon
+        -remade sword into one handed wepon
+        -added shield
+        -made it so if you press q you use shield to block
+        -made axe into the center of the box AGAIN
+        -made spear into the center of the box AGAIN
+        -made sword into the center of the box AGAIN
+        -display player name below the player
+        -updated the Change log so there are versions
+        -Fixed bugs
 -->
 <html>
     <head>
@@ -234,11 +262,13 @@ var keyPress = 10; // limit space key presses
 var trees = []; // tree list
 var rocks = []; // rock list
 var wolves = []; // wolf list
+var bulls = []; // bull list
 var golds = []; // gold list
 var bushes = []; // bush list
 var objects = []; // object list
 var soldiers = []; // soldier list
 var orcs = []; // orc soldier list
+var particles = []; // particle list
 var blockStats = {
     woodBlock: {
         size: [25, 25],
@@ -268,20 +298,20 @@ function drawItems(x, y, inv, i) {
     ctx.save();
     if(inv[i][0] === "axe") {
         fill(100, 75, 0);
-        rect(x - 21, y - 25, 5, 40, 0)
+        rect(x - 37, y + 4, 40, 5, 0.25);
         fill(125, 125, 125);
-        rect(x - 38, y - 23, 25, 15, 0)
+        rect(x - 30, y - 12, 15, 25, 0.25);
     } else if(inv[i][0] === "spear") {
         fill(100, 75, 0);
-        rect(x - 21, y - 25, 5, 60, 0);
+        rect(x - 45, y + 11, 60, 5, 0);
         fill(125, 125, 125);
-        rect(x - 13, y + 35, 10, 10, 90)
+        rect(x - 40, y + 7, 10, 10, 45)
     } else if(inv[i][0] === "sword") {
         fill(100, 75, 0);
-        rect(x - 21, y - 25, 5, 40, 0);
+        rect(x - 33, y + 13, 40, 5, 0);
         fill(125, 125, 125);
-        rect(x - 23.5, y - 30, 10, 18, 0);
-        rect(x - 17, y - 35, 7, 7, 45);
+        rect(x - 35.5, y + 10, 18, 10, 0);
+        rect(x - 35, y + 10, 7, 7, 45);
     } else if(inv[i][0] === "apple") {
         fill(255, 10, 10);
         ellipse(x - 25, y, 10, 10, 0)
@@ -371,8 +401,13 @@ function baisedRandom() {
 
 // Player functions
 function Player() {
+    // position of the player
     this.x = round(random(-4000, 4000));
     this.y = round(random(-4000, 4000));
+    // acceleration of the player
+    this.accelerationX = 0;
+    this.accelerationY = 0;
+    // rotation of the player
     this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
     this.color = [255, 200, 100];
     this.inv = [["axe", "wepon"], ["apple", "food"], ["barracks", "block"], ["woodBlock", "block"]];
@@ -382,8 +417,8 @@ function Player() {
     this.wood = 0;
     this.food = 0;
     this.gold = 6000;
-    this.offset = 0;
-    this.offsetA = 0;
+    this.offset = [0, 0];
+    this.offsetA = [0, 0];
     this.weponSize = 10;
     this.weponLength = 30;
     this.weponDamage = 25;
@@ -402,46 +437,74 @@ function Player() {
     this.playerName = "player";
 };
 Player.prototype.update = function() {
-    this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
+    // update the level and xp
     if(this.exp >= ((this.lvl + (this.lvl + 1)) * 32.5)) {
         this.lvl+=1;
         this.exp = 0;
         this.upgrade[0]+=1;
     }
+    // update the player positions
     if(keys[87] || keys[38]) {
         this.y-=1;
     }
+    
     if(keys[83] || keys[40]) {
         this.y+=1;
     }
+    
     if(keys[65] || keys[37]) {
         this.x-=1;
     }
+    
     if(keys[68] || keys[39]) {
         this.x+=1;
     }
-    if(this.offset > 0) {
-        this.offsetA-=0.01;
+    this.x+=this.accelerationX;
+    this.y+=this.accelerationY;
+    this.accelerationX*=0.95;
+    this.accelerationY*=0.95;
+    // the offset that the player holds his wepon at
+    if(this.offset[0] > 0) {
+        this.offsetA[0]-=0.01;
     } else {
-        this.offset = 0;
-        this.offsetA = 0;
+        this.offset[0] = 0;
+        this.offsetA[0] = 0;
     }
-    this.offset+=this.offsetA;
+    // the offset that the player holds his 2nd thing at
+    if(this.offset[1] < 0) {
+        this.offsetA[1]+=0.01;
+    } else {
+        this.offset[1] = 0;
+        this.offsetA[1] = 0;
+    }
+    this.offset[0]+=this.offsetA[0];
+    this.offset[1]+=this.offsetA[1];
+    // confine the play in a -4000 to 4000 square
     this.x = constrain(this.x, -4000, 4000);
-    this.y = constrain(this.y, -4000, 4000)
+    this.y = constrain(this.y, -4000, 4000);
+    // misc stuff
+    this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
+    this.timeSinceLastPress+=1;
+    this.timeSinceLastDash+=1;
 };
 Player.prototype.draw = function() {
     fill(this.color[0], this.color[1], this.color[2]);
     ellipse(canvas.width/2, canvas.height/2, 10, 10, 0);
-    ellipse(canvas.width/2 - cos(this.r + this.offset + 0.5) * 17.5, canvas.height/2 - sin(this.r + this.offset + 0.5) * 17.5, 5, 5, 0);
-    ellipse(canvas.width/2 - cos(this.r + this.offset - 0.5) * 17.5, canvas.height/2 - sin(this.r + this.offset - 0.5) * 17.5, 5, 5, 0);
+    ellipse(canvas.width/2 - cos(this.r + this.offset[1] + 1) * 17.5, canvas.height/2 - sin(this.r + this.offset[1] + 1) * 17.5, 5, 5, 0);
+    ellipse(canvas.width/2 - cos(this.r + this.offset[0] - 1) * 17.5, canvas.height/2 - sin(this.r + this.offset[0] - 1) * 17.5, 5, 5, 0);
+    ctx.save();
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(this.r + this.offset[1]);
+    fill(100, 100, 100);
+    rect(-30, -17.5, 40, 5, 0);
+    ctx.restore();
     fill(50, 50, 50);
     rect(canvas.width/2 - 15, canvas.height/2 + 15, 30, 5)
     fill(250, 0, 0);
     rect(canvas.width/2 - 15, canvas.height/2 + 15, (30/this.maxHp) * this.hp, 5);
     ctx.save();
     ctx.translate(canvas.width/2, canvas.height/2);
-    ctx.rotate(this.r + this.offset);
+    ctx.rotate(this.r + this.offset[0]);
     drawItems(0, 0, this.inv, this.holding);
     ctx.restore();
     switch(this.playerHat) {
@@ -469,6 +532,8 @@ Player.prototype.draw = function() {
             this.armor = 12.5;
         break;
     }
+    fill(255, 255, 255);
+    text(this.playerName, canvas.width/2, canvas.height/2 + 35, 15)
 };
 Player.prototype.ui = function() {
     for(var i = 0; i < this.inv.length; i+=1) {
@@ -486,12 +551,12 @@ Player.prototype.ui = function() {
                 ctx.rotate(3.8);
                 drawItems(0, 0, this.inv, i);
             } else if(this.inv[i][0] === "axe") {
-                ctx.translate(-20, 20)
+                ctx.translate(-5, 5);
                 ctx.rotate(0.8);
                 drawItems(0, 0, this.inv, i);
             } else if(this.inv[i][0] === "sword") {
-                ctx.translate(-25, 20)
-                ctx.rotate(0.8);
+                ctx.translate(-5, 5)
+                ctx.rotate(1.9);
                 drawItems(0, 0, this.inv, i);
             }
             ctx.restore();
@@ -632,6 +697,15 @@ Player.prototype.ui = function() {
     }
 };
 Player.prototype.clicks = function() {
+    if(this.offset[1] < -1) {
+        this.offset[1] = -1;
+    }
+    if(keys[81]) {
+        if(this.offset[1] === 0) {
+            this.offset[1] = -0.15;
+        }
+        this.offsetA[1] = -0.175;
+    }
     if(clicked || keys[32] && keyPress <= 0) {
         keyPress = 30;
         switch(this.inv[this.holding][0]) {
@@ -668,21 +742,21 @@ Player.prototype.clicks = function() {
                 }
             break;
             case "axe":
-                if(this.offset <= 0) {
-                    this.offset = 0.1;
-                    this.offsetA = 0.1;
+                if(this.offset[0] <= 0) {
+                    this.offset[0] = 0.1;
+                    this.offsetA[0] = 0.1;
                 }
             break;
             case "spear":
-                if(this.offset <= 0) {
-                    this.offset = 0.2;
-                    this.offsetA = 0.2;
+                if(this.offset[0] <= 0) {
+                    this.offset[0] = 0.2;
+                    this.offsetA[0] = 0.2;
                 }
             break;
             case "sword":
-                if(this.offset <= 0) {
-                    this.offset = 0.15;
-                    this.offsetA = 0.15;
+                if(this.offset[0] <= 0) {
+                    this.offset[0] = 0.15;
+                    this.offsetA[0] = 0.15;
                 }
             break;
             case "apple":
@@ -703,18 +777,24 @@ Player.prototype.clicks = function() {
     }
 };
 Player.prototype.reset = function() {
+    // position of the player
     this.x = round(random(-4000, 4000));
     this.y = round(random(-4000, 4000));
+    // acceleration of the player
+    this.accelerationX = 0;
+    this.accelerationY = 0;
+    // rotation of the player
     this.r = atan2(canvas.height/2 - mouseY, canvas.width/2 - mouseX);
+    this.color = [255, 200, 100];
     this.inv = [["axe", "wepon"], ["apple", "food"], ["barracks", "block"], ["woodBlock", "block"]];
     this.holding = 0;
     this.s = 10;
-    this.stone = 100;
-    this.wood = 100;
-    this.food = 100;
-    this.gold = 100;
-    this.offset = 0;
-    this.offsetA = 0;
+    this.stone = 0;
+    this.wood = 0;
+    this.food = 0;
+    this.gold = 6000;
+    this.offset = [0, 0];
+    this.offsetA = [0, 0];
     this.weponSize = 10;
     this.weponLength = 30;
     this.weponDamage = 25;
@@ -722,7 +802,42 @@ Player.prototype.reset = function() {
     this.maxHp = 100;
     this.exp = 0;
     this.lvl = 1;
-    this.upgrade = [1, 2];
+    this.armor = 0; // how much armor the player has
+    // used for upgrading age, LVL Till end of upgrade, LVL so far
+    this.upgrade = [1, 0.1];
+    // toggle shop off and on
+    this.showShop = false;
+    // what hat the player is wearing
+    this.playerHat = "none";
+    // the name of the player
+    this.playerName = "player";
+};
+
+// Particles
+function particle(x, y, accelerationX, accelerationY, size, life, color) {
+    // stats of the particle
+    this.x = x;
+    this.y = y;
+    this.size = size;
+    this.life = life;
+    this.color = color;
+    this.accelerationX = accelerationX;
+    this.accelerationY = accelerationY;
+};
+particle.prototype.draw = function() {
+    // draw the particle
+    fill(this.color[0], this.color[1], this.color[2], (this.life)/255);
+    ellipse(this.x - player.x, this.y - player.y, this.size, this.size, 0);
+};
+particle.prototype.update = function() {
+    // update position
+    this.x+=this.accelerationX;
+    this.y+=this.accelerationY;
+    this.accelerationX*=0.95;
+    this.accelerationY*=0.95;
+    
+    // other updates
+    this.life-=1;
 };
 
 // Object functions
@@ -826,7 +941,7 @@ tree.prototype.collide = function(t, x, y) {
         t.y-=sin(r);
     }
     if(clicked || keys[32] && keyPress <= 10 && x === 0) {
-        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset[0] > 0) {
             t.wood+=1;
             t.exp+=1;
             this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)]
@@ -860,7 +975,7 @@ rock.prototype.collide = function(t, x, y) {
         t.y-=sin(r);
     }
     if(clicked || keys[32] && keyPress <= 10) {
-        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset[0] > 0) {
             t.stone+=1;
             t.exp+=1;
             this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)];
@@ -894,7 +1009,7 @@ gold.prototype.collide = function(t, x, y) {
         t.y-=sin(r);
     }
     if(clicked || keys[32] && keyPress <= 10) {
-        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset > 0) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + this.s + 10 && t.offset[0] > 0) {
             t.gold+=5;
             t.exp+=5;
             this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)];
@@ -936,7 +1051,7 @@ bush.prototype.collide = function(t, x, y) {
         t.y-=sin(r);
     }
     if(clicked || keys[32] && keyPress <= 10) {
-        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160) * t.weponLength, t.y + sin(t.r - 160) * t.weponLength) < t.weponSize + 30 && t.offset[0] > 0) {
             t.food+=1;
             t.exp+=1;
             this.offset = [-(cos(t.r) * 5), -(sin(t.r) * 5)];
@@ -952,7 +1067,7 @@ function wolf(x, y) {
     this.ar = -0.05;
     this.t = 0;
     this.hp = 100;
-    this.damage = 1;
+    this.damage = 8;
     this.armor = 0;
 };
 wolf.prototype.draw = function() {
@@ -990,14 +1105,83 @@ wolf.prototype.collide = function(t) {
     if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < canvas.width/2 + canvas.height/2) {
         this.r = atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x);
         this.ar = 0;
-        while(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 40) {
-            var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
-            t.x-=cos(r);
-            t.y-=sin(r);
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 40) {
+            while(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 40) {
+                var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
+                t.x-=cos(r);
+                t.y-=sin(r);
+                t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+            }
             t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+            t.accelerationX = -cos(r) * 2;
+            t.accelerationY = -sin(r) * 2;
         }
         if(clicked || keys[32] && keyPress <= 10) {
-            if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
+            if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset[0]) * t.weponLength, t.y + sin(t.r - 160 + t.offset[0]) * t.weponLength) < t.weponSize + 30 && t.offset[0] > 0) {
+                this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
+            }
+        }
+    }
+};
+
+// Bull functions
+function bull(x, y) {
+    this.x = x;
+    this.y = y;
+    this.r = 0;
+    this.ar = -0.05;
+    this.t = 0;
+    this.hp = 200;
+    this.damage = 20;
+    this.armor = 2;
+};
+bull.prototype.draw = function() {
+    fill(191, 119, 10)
+    ellipse(this.x - player.x, this.y - player.y, 35, 25, this.r);
+    fill(181, 109, 0)
+    ellipse(this.x - player.x + cos(this.r) * 20, this.y - player.y + sin(this.r) * 20, 25, 25, this.r);
+    fill(50, 50, 50);
+    rect(this.x - player.x - 25, this.y - player.y + 40, 50, 5);
+    fill(255, 0, 0);
+    rect(this.x - player.x - 25, this.y - player.y + 40, this.hp/4, 5);
+    fill(255, 255, 255);
+    text("Bull", this.x - player.x, this.y - player.y - 40, 20);
+};
+bull.prototype.update = function() {
+    this.t-=1;
+    this.x+=cos(this.r);
+    this.y+=sin(this.r);
+    this.r -= random(0, this.ar);
+    if(this.t <= 0) {
+        if(random(0, 1) < 0.5) {
+            this.ar = -0.05;
+        } else {
+            this.ar = 0.05;
+        }
+        this.t = round(random(50, 150))
+    }
+    if(this.x + canvas.width/2 > -200 && this.x + canvas.width/2 < 200) {
+        this.y-=0.5;
+    }
+    this.x = constrain(this.x, -4000 - canvas.width/2, 4000 + canvas.width/2);
+    this.y = constrain(this.y, -4000 - canvas.height/2, 4000 + canvas.height/2);
+};
+bull.prototype.collide = function(t) {
+    if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < canvas.width/2 + canvas.height/2) {
+        this.r = atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x);
+        this.ar = 0;
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 60) {
+            while(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 60) {
+                var r = atan2((this.y - canvas.height/2) - t.y, (this.x - canvas.width/2) - t.x);
+                t.x-=cos(r);
+                t.y-=sin(r);
+            }
+            t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+            t.accelerationX = -cos(r) * 2;
+            t.accelerationY = -sin(r) * 2;
+        }
+        if(clicked || keys[32] && keyPress <= 10) {
+            if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset[0]) * t.weponLength, t.y + sin(t.r - 160 + t.offset[0]) * t.weponLength) < t.weponSize + 50 && t.offset[0] > 0) {
                 this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
             }
         }
@@ -1184,11 +1368,13 @@ orc.prototype.update = function() {
     this.closest = 1000000;
 };
 orc.prototype.collide = function(t, hurt) {
-    if(clicked || keys[32] && keyPress <= 10) {
-        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
+    if(hurt && clicked || hurt && keys[32] && keyPress <= 10) {
+        if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset[0]) * t.weponLength, t.y + sin(t.r - 160 + t.offset[0]) * t.weponLength) < t.weponSize + 30 && t.offset[0] > 0) {
             this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
         }
     }
+    
+    // hurt the player
     if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x, t.y) < 25 || !hurt && dist(this.x, this.y, t.x, t.y) < 25) {
         t.x-=(this.x - t.x)/(dist(this.x, this.y, t.x, t.y));
         t.y-=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
@@ -1196,11 +1382,19 @@ orc.prototype.collide = function(t, hurt) {
         this.y+=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
         if(hurt) {
             if(this.coolDown <= 0) {
-                t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+                if(t.offset[1] === 0) {
+                    t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+                    t.accelerationX = cos(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x));
+                    t.accelerationY = sin(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x));
+                } else {
+                    t.accelerationX = cos(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x)) * 3;
+                    t.accelerationY = sin(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x)) * 3;
+                }
                 this.coolDown = this.reload;
             }
         }
     }
+    
 };
 
 // Orc genarel functions
@@ -1258,7 +1452,7 @@ orcGenarel.prototype.collide = function(t, hurt) {
         this.r = atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x);
         this.ar = 0;
         if(clicked || keys[32] && keyPress <= 10) {
-            if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset) * t.weponLength, t.y + sin(t.r - 160 + t.offset) * t.weponLength) < t.weponSize + 30 && t.offset > 0) {
+            if(dist(this.x - canvas.width/2, this.y - canvas.height/2, t.x + cos(t.r - 160 + t.offset[0]) * t.weponLength, t.y + sin(t.r - 160 + t.offset[0]) * t.weponLength) < t.weponSize + 30 && t.offset[0] > 0) {
                 this.hp-=constrain(t.weponDamage - this.armor, 0, Infinity);
             }
         }
@@ -1269,7 +1463,14 @@ orcGenarel.prototype.collide = function(t, hurt) {
             this.y+=(this.y - t.y)/(dist(this.x, this.y, t.x, t.y));
             if(hurt) {
                 if(this.coolDown <= 0) {
-                    t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+                    if(t.offset[1] === 0) {
+                        t.hp-=constrain(this.damage - t.armor, 0, Infinity);
+                        t.accelerationX = cos(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x));
+                        t.accelerationY = sin(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x));
+                    } else {
+                        t.accelerationX = cos(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x)) * 3;
+                        t.accelerationY = sin(atan2((player.y + canvas.height/2) - this.y, (player.x + canvas.width/2) - this.x)) * 3;
+                    }
                     this.coolDown = this.reload;
                 }
             }
@@ -1309,34 +1510,48 @@ Map.prototype.update = function() {
 
 // initiate player
 var player = new Player();
+
 // initiate map
 var map = new Map();
+
 // Tree spawning
 for(var i = 0; i < 100; i+=1) {
     trees.push(new tree());
 }
+
 // Rock spawning
 for(var i = 0; i < 100; i+=1) {
     rocks.push(new rock());
 }
+
 // Bush spawning
 for(var i = 0; i < 150; i+=1) {
     bushes.push(new bush());
 }
+
 // Gold spawning
 for(var i = 0; i < 50; i+=1) {
     golds.push(new gold());
 }
+
 // Wolf spawning
-for(var i = 0; i < 100; i+=1) {
-    wolves.push(new wolf(round(random(-4000, 4000)), round(random(-4000, 4000))));
+for(var i = 0; i < 20; i+=1) {
+    wolves.push(new wolf(round(random(-4000, -3000)), round(random(-4000, -3000))));
     //wolves.push(new wolf(player.x, player.y));
 }
+
+// Bull spawning
+for(var i = 0; i < 20; i+=1) {
+    bulls.push(new bull(round(random(4000, 3000)), round(random(4000, 3000))));
+    //bulls.push(new bull(player.x + round(random(-100, 600)), player.y + round(random(-100 ,600))));
+}
+
 // Orc spawning
-orcGeneral = new orcGenarel(round(random(-4000, 4000)), round(random(-4000, 4000)));
+orcGeneral = new orcGenarel(player.x, player.y);
 for(var i = 0; i < baisedRandom(); i+=1) {
     orcs.push(new orc(orcGeneral.x + round(random(-10, 10)), orcGeneral.y - 100 + round(random(-10, 10)), randomGuy()));
 }
+
 // button function
 function button(x, y, width, height, does, txt) {
     rect(x, y, width, height, 0);
@@ -1346,6 +1561,7 @@ function button(x, y, width, height, does, txt) {
         does();
     }
 };
+
 // menu function
 function menu() {
     textAlign("center");
@@ -1430,14 +1646,21 @@ function draw() {
             menu();
         break;
         case "game":
+            // update and draw the map
             map.draw();
             map.update();
+            
+            // update and draw the player
             player.update();
             player.draw();
             player.clicks();
+            
+            // update and draw the orc general
             orcGeneral.update();
             orcGeneral.draw();
             orcGeneral.collide(player, true);
+            
+            // loop through the trees
             for(var i = 0; i < trees.length; i+=1) {
                 if(player.x >= trees[i].x - canvas.width - trees[i].s - 25 && player.x <= trees[i].x + canvas.width + trees[i].s + 25 && player.y >= trees[i].y - canvas.height - trees[i].s && player.y <= trees[i].y + canvas.height + trees[i].s + 25) {
                     entitys+=1;
@@ -1454,6 +1677,8 @@ function draw() {
                     }
                 }
             }
+            
+            // loop through the rocks
             for(var i = 0; i < rocks.length; i+=1) {
                 if(player.x >= rocks[i].x - canvas.width - rocks[i].s - 25 && player.x <= rocks[i].x + canvas.width + rocks[i].s + 25 && player.y >= rocks[i].y - canvas.height - rocks[i].s && player.y <= rocks[i].y + canvas.height + rocks[i].s + 25) {
                     entitys+=1;
@@ -1470,6 +1695,8 @@ function draw() {
                     }
                 }
             }
+            
+            // loop through the gold
             for(var i = 0; i < golds.length; i+=1) {
                 if(player.x >= golds[i].x - canvas.width - golds[i].s - 25 && player.x <= golds[i].x + canvas.width + golds[i].s + 25 && player.y >= golds[i].y - canvas.height - golds[i].s && player.y <= golds[i].y + canvas.height + golds[i].s + 25) {
                     entitys+=1;
@@ -1486,6 +1713,8 @@ function draw() {
                     }
                 }
             }
+            
+            // loop though the bushes
             for(var i = 0; i < bushes.length; i+=1) {
                 if(player.x >= bushes[i].x - canvas.width - 20 && player.x < bushes[i].x + 20 && player.y >= bushes[i].y - 10 - canvas.height  && player.y <= bushes[i].y + 10) {
                     entitys+=1;
@@ -1502,6 +1731,7 @@ function draw() {
                     bushes[i].collide(player)
                 }
             }
+            
             // loop through the objects
             for(var i = 0; i < objects.length; i+=1) {
                 // if the object is on screen
@@ -1533,6 +1763,7 @@ function draw() {
                     }
                 }
             }
+            
             // loop through wolves
             for(var i = 0; i < wolves.length; i+=1) {
                 if(player.x >= wolves[i].x - canvas.width - 37.5 && player.x <= wolves[i].x + 10 && player.y >= wolves[i].y - canvas.height - 12.5 && player.y <= wolves[i].y + 10) {
@@ -1548,6 +1779,23 @@ function draw() {
                 }
                 wolves[i].update();
             }
+            
+            // loop through bulls
+            for(var i = 0; i < bulls.length; i+=1) {
+                if(player.x >= bulls[i].x - canvas.width - 37.5 && player.x <= bulls[i].x + 10 && player.y >= bulls[i].y - canvas.height - 12.5 && player.y <= bulls[i].y + 10) {
+                    entitys+=1;
+                    bulls[i].draw();
+                    bulls[i].collide(player);
+                    if(bulls[i].hp <= 0) {
+                        bulls.splice(i, 1);
+                        player.food+=200;
+                        player.exp+=200;
+                        player.gold+=500;
+                    }
+                }
+                bulls[i].update();
+            }
+            
             // loop through soldiers
             for(var i = 0; i < soldiers.length; i+=1) {
                 // do the soldiers functions
@@ -1572,6 +1820,7 @@ function draw() {
                     soldiers.splice(i, 1);
                 }
             }
+            
             // loop through the orcs
             for(var i = 0; i < orcs.length; i+=1) {
                 // do the orc functions
@@ -1588,17 +1837,32 @@ function draw() {
                     orcs.splice(i, 1);
                 }
             }
+            
+            // loop throught all the particles
+            for(var i = 0; i < particles.length; i+=1) {
+                particles[i].draw();
+                particles[i].update();
+                if(particles[i].life <= 1) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // show the ui and stats
             player.ui();
             fill(255, 255, 255);
             text("Position: " + round(player.x) + ", " + round(player.y), 65, 15, 12);
             text("hp: " + round(player.hp) + "/" + "100", 65, 30, 12)
             text("Entitys: " + round(entitys), 65, 45, 12);
+            
+            // if the player is dead
             if(player.hp <= 0) {
                 player.reset();
                 wolves = [];
                 objects = [];
                 scene = "menu";
             }
+            
+            // if the orc general is dead
             if(orcGeneral.hp <= 0) {
                 orcs = [];
                 // Orc spawning
@@ -1607,15 +1871,20 @@ function draw() {
                     orcs.push(new orc(orcGeneral.x + round(random(-10, 10)), orcGeneral.y - 100 + round(random(-10, 10)), randomGuy()));
                 }
             }
+            // mini map
             fill(0, 0, 0, 0.5);
             rect(10, canvas.height - 110, 100, 100);
             rect(4000 - player.x, -4000 - player.y - canvas.height, 8000, canvas.height);
             fill(255, 255, 255);
             ellipse(60 + (100/8000) * player.x, canvas.height - 60 + (100/8000) * player.y, 2, 2, 0);
+            
+            // loop trough the soldiers
             for(var i = 0; i < soldiers.length; i+=1) {
                 fill(255, 255, 255);
                 ellipse(60 + (100/8000) * soldiers[i].x, canvas.height - 60 + (100/8000) * soldiers[i].y, 2, 2, 0);
             }
+            
+            // loop through the objects
             for(var i = 0; i < objects.length; i+=1) {
                 fill(255, 255, 255);
                 rect(60 + (100/8000) * objects[i].x - 5, canvas.height - 60 + (100/8000) * objects[i].y - 5, 2, 2, 0);
@@ -1624,8 +1893,13 @@ function draw() {
     }
     clicked = false;
     keyPress-=1;
-    if(wolves.length < 100) {
-        wolves.push(new wolf(0, 0));
+    // respawn wolves
+    if(wolves.length < 20) {
+        wolves.push(new wolf(round(random(-4000, -3000)), round(random(-4000, -3000))));
+    }
+    // respawn bulls
+    if(bulls.length < 20) {
+        bulls.push(new bull(round(random(4000, 3000)), round(random(4000, 3000))));
     }
     entitys = 0;
 };
